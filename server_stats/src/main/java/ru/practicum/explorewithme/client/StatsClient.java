@@ -1,9 +1,7 @@
 package ru.practicum.explorewithme.client;
 
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.lang.Nullable;
 import org.springframework.web.client.HttpStatusCodeException;
@@ -50,8 +48,15 @@ public class StatsClient {
                                                           String path,
                                                           @Nullable Map<String, Object> parameters,
                                                           @Nullable T body) {
-        HttpEntity<T> requestEntity = new HttpEntity<>(body);
-
+        HttpEntity<T> requestEntity;
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+        if (body != null) {
+            requestEntity = new HttpEntity<>(body, headers);
+        } else {
+            requestEntity = new HttpEntity<>(headers);
+        }
         ResponseEntity<Object> staticServerResponse;
         try {
             if (parameters != null) {
