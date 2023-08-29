@@ -1,15 +1,39 @@
 version: '3.1'
 services:
+  core:
+    build: core
+    image: explore-with-me-core
+    container_name: explore-with-me-core
+    ports:
+      - "8080:8080"
+    depends_on:
+      - core-db
+
+  core-db:
+    image: postgres:14-alpine
+    container_name: core-db
+    ports:
+      - "6541:5432"
+    environment:
+      - POSTGRES_DB=jdbc:h2:mem:explore-with-me-core
+      - POSTGRES_USER=core
+      - POSTGRES_PASSWORD=core
+
   stats-server:
+    build: server_stats
+    image: explore-with-me-server
+    container_name: explore-with-me-server
     ports:
       - "9090:9090"
+    depends_on:
+      - stats-db
 
   stats-db:
     image: postgres:14-alpine
-
-  ewm-service:
+    container_name: stats-db
     ports:
-      - "8080:8080"
-
-  ewm-db:
-    image: postgres:14-alpine
+      - "6540:5431"
+    environment:
+      - POSTGRES_DB=jdbc:h2:mem:explore-with-me-stats
+      - POSTGRES_USER=stats
+      - POSTGRES_PASSWORD=stats

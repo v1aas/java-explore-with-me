@@ -1,0 +1,1106 @@
+{
+	"info": {
+		"_postman_id": "4c8dda3b-626d-453c-a8b5-8e4515ae12ad",
+		"name": "Diplom",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "26310000",
+		"_collection_link": "https://universal-crater-21935.postman.co/workspace/Team-Workspace~2be55f36-a6a7-4f53-85cb-13010c967c19/collection/26310000-4c8dda3b-626d-453c-a8b5-8e4515ae12ad?action=share&source=collection_link&creator=26310000"
+	},
+	"item": [
+		{
+			"name": "users",
+			"item": [
+				{
+					"name": "Admin user 1 create",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"The id should be equal to 1\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"\r",
+									"    pm.expect(responseData.id).to.equal(1);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Name should be equal to 'User #1'\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"\r",
+									"    pm.expect(responseData.name).to.equal(\"User #1\");\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Email is equal to 'user@user.com'\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"\r",
+									"    pm.expect(responseData.email).to.equal(\"user@user.com\");\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"User #1\",\r\n    \"email\": \"user@user.com\"\r\n}"
+						},
+						"url": {
+							"raw": "{{localhost}}/admin/users",
+							"host": [
+								"{{localhost}}"
+							],
+							"path": [
+								"admin",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Admin user create fail duplicate email",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.expect(pm.response.code).to.be.oneOf([409, 500])"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"User #2\",\r\n    \"email\": \"user@user.com\"\r\n}"
+						},
+						"url": {
+							"raw": "{{localhost}}/admin/users",
+							"host": [
+								"{{localhost}}"
+							],
+							"path": [
+								"admin",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Admin user create fail no email",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.response.to.be.badRequest;"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"User #3\",\r\n    \"email\": \"\"\r\n}"
+						},
+						"url": {
+							"raw": "{{localhost}}/admin/users",
+							"host": [
+								"{{localhost}}"
+							],
+							"path": [
+								"admin",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Admin user create fail invalid email",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.response.to.be.badRequest;"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"User #2\",\r\n    \"email\": \"mailmailmail\"\r\n}"
+						},
+						"url": {
+							"raw": "{{localhost}}/admin/users",
+							"host": [
+								"{{localhost}}"
+							],
+							"path": [
+								"admin",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Admin user 2 create",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"",
+									"pm.test(\"The id field is present and has the value of 2\", function () {",
+									"    const responseData = pm.response.json();",
+									"",
+									"    pm.expect(responseData.id).to.exist.and.to.equal(2);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Name field is present and has the value of 'User #2'\", function () {",
+									"    const responseData = pm.response.json();",
+									"",
+									"    pm.expect(responseData.name).to.exist.and.to.equal(\"User #2\");",
+									"});",
+									"",
+									"",
+									"pm.test(\"Email field is present and has the value of 'user2@user.com'\", function () {",
+									"    const responseData = pm.response.json();",
+									"",
+									"    pm.expect(responseData).to.be.an('object');",
+									"    pm.expect(responseData.email).to.exist.and.to.equal(\"user2@user.com\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"User #2\",\r\n    \"email\": \"user2@user.com\"\r\n}"
+						},
+						"url": {
+							"raw": "{{localhost}}/admin/users",
+							"host": [
+								"{{localhost}}"
+							],
+							"path": [
+								"admin",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all users",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Response is an array with length of 2\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"\r",
+									"    pm.expect(responseData).to.be.an('array').and.to.have.lengthOf(2);\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{localhost}}/admin/users",
+							"host": [
+								"{{localhost}}"
+							],
+							"path": [
+								"admin",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get user 1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test to check the response status code is 200\r",
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// Test to check the response length is 1\r",
+									"pm.test(\"Response has length of 1\", function () {\r",
+									"    pm.expect(pm.response.json().length).to.equal(1);\r",
+									"});\r",
+									"\r",
+									"// Test to check the first object in the response is as expected\r",
+									"pm.test(\"First object in the response matches the expected object\", function () {\r",
+									"    var expectedObject = {\r",
+									"        \"id\": 1,\r",
+									"        \"name\": \"User #1\",\r",
+									"        \"email\": \"user@user.com\"\r",
+									"    };\r",
+									"    pm.expect(pm.response.json()[0]).to.eql(expectedObject);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{localhost}}/admin/users?id=1",
+							"host": [
+								"{{localhost}}"
+							],
+							"path": [
+								"admin",
+								"users"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create 1 event for 1 user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response contains the correct id\", function () {",
+									"    pm.expect(pm.response.json().id).to.equal(1);",
+									"});",
+									"",
+									"pm.test(\"Response contains the correct annotation\", function () {",
+									"    pm.expect(pm.response.json().annotation).to.equal(\"Новое событие\");",
+									"});",
+									"",
+									"pm.test(\"Response contains the correct description\", function () {",
+									"    pm.expect(pm.response.json().description).to.equal(\"Написание дипломной работы :):):):):)\");",
+									"});",
+									"",
+									"pm.test(\"Response contains the correct initiator\", function () {",
+									"    pm.expect(pm.response.json().initiator).to.eql({",
+									"        id: 1,",
+									"        name: \"User #1\",",
+									"        email: \"user@user.com\"",
+									"    });",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"annotation\": \"Новое событие\",\r\n    \"description\": \"Написание дипломной работы :):):):):)\"\r\n}"
+						},
+						"url": {
+							"raw": "{{localhost}}/users/1/events",
+							"host": [
+								"{{localhost}}"
+							],
+							"path": [
+								"users",
+								"1",
+								"events"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create 2 event for 1 user Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains the correct id\", function () {\r",
+									"    pm.expect(pm.response.json().id).to.equal(2);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains the correct annotation\", function () {\r",
+									"    pm.expect(pm.response.json().annotation).to.equal(\"Выпускной с Яндекс.Практикум\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains the correct description\", function () {\r",
+									"    pm.expect(pm.response.json().description).to.equal(\"Жоская тусовка в зуме или Яндекс.Телемост\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains the correct initiator\", function () {\r",
+									"    pm.expect(pm.response.json().initiator).to.eql({\r",
+									"        id: 1,\r",
+									"        name: \"User #1\",\r",
+									"        email: \"user@user.com\"\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"annotation\": \"Выпускной с Яндекс.Практикум\",\r\n    \"description\": \"Жоская тусовка в зуме или Яндекс.Телемост\"\r\n}"
+						},
+						"url": {
+							"raw": "{{localhost}}/users/1/events",
+							"host": [
+								"{{localhost}}"
+							],
+							"path": [
+								"users",
+								"1",
+								"events"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all events",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Response is an array with length of 2\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"\r",
+									"    pm.expect(responseData).to.be.an('array').and.to.have.lengthOf(2);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{localhost}}/events",
+							"host": [
+								"{{localhost}}"
+							],
+							"path": [
+								"events"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get event 1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains the correct id\", function () {\r",
+									"    pm.expect(pm.response.json().id).to.equal(1);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains the correct annotation\", function () {\r",
+									"    pm.expect(pm.response.json().annotation).to.equal(\"Новое событие\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains the correct description\", function () {\r",
+									"    pm.expect(pm.response.json().description).to.equal(\"Написание дипломной работы :):):):):)\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains the correct initiator\", function () {\r",
+									"    pm.expect(pm.response.json().initiator).to.eql({\r",
+									"        id: 1,\r",
+									"        name: \"User #1\",\r",
+									"        email: \"user@user.com\"\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{localhost}}/events/1",
+							"host": [
+								"{{localhost}}"
+							],
+							"path": [
+								"events",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "statistic",
+			"item": [
+				{
+					"name": "Save 1 request",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains the correct id\", function () {\r",
+									"    pm.expect(pm.response.json().id).to.equal(1);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains the correct app\", function () {\r",
+									"    pm.expect(pm.response.json().app).to.equal(\"ewm-main-service\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains the correct uri\", function () {\r",
+									"    pm.expect(pm.response.json().uri).to.equal(\"/events/1\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains the correct ip\", function () {\r",
+									"    pm.expect(pm.response.json().ip).to.equal(\"192.163.0.1\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains the correct timestamp\", function () {\r",
+									"    pm.expect(pm.response.json().timestamp).to.equal(\"2022-09-06T11:00:23\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"app\": \"ewm-main-service\",\r\n  \"uri\": \"/events/1\",\r\n  \"ip\": \"192.163.0.1\",\r\n  \"timestamp\": \"2022-09-06 11:00:23\"\r\n}"
+						},
+						"url": {
+							"raw": "{{localserver}}/hit",
+							"host": [
+								"{{localserver}}"
+							],
+							"path": [
+								"hit"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Save 2 request",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains the correct id\", function () {\r",
+									"    pm.expect(pm.response.json().id).to.equal(2);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains the correct app\", function () {\r",
+									"    pm.expect(pm.response.json().app).to.equal(\"ewm-main-service\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains the correct uri\", function () {\r",
+									"    pm.expect(pm.response.json().uri).to.equal(\"/events/10\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains the correct ip\", function () {\r",
+									"    pm.expect(pm.response.json().ip).to.equal(\"192.163.0.1\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains the correct timestamp\", function () {\r",
+									"    pm.expect(pm.response.json().timestamp).to.equal(\"2022-09-15T15:00:23\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"app\": \"ewm-main-service\",\r\n  \"uri\": \"/events/10\",\r\n  \"ip\": \"192.163.0.1\",\r\n  \"timestamp\": \"2022-09-15 15:00:23\"\r\n}"
+						},
+						"url": {
+							"raw": "{{localserver}}/hit",
+							"host": [
+								"{{localserver}}"
+							],
+							"path": [
+								"hit"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Save 3 request",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains the correct id\", function () {\r",
+									"    pm.expect(pm.response.json().id).to.equal(3);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains the correct app\", function () {\r",
+									"    pm.expect(pm.response.json().app).to.equal(\"ewm-main-service\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains the correct uri\", function () {\r",
+									"    pm.expect(pm.response.json().uri).to.equal(\"/events/1\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains the correct ip\", function () {\r",
+									"    pm.expect(pm.response.json().ip).to.equal(\"192.163.0.10\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains the correct timestamp\", function () {\r",
+									"    pm.expect(pm.response.json().timestamp).to.equal(\"2022-09-20T11:00:23\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"app\": \"ewm-main-service\",\r\n  \"uri\": \"/events/1\",\r\n  \"ip\": \"192.163.0.10\",\r\n  \"timestamp\": \"2022-09-20 11:00:23\"\r\n}"
+						},
+						"url": {
+							"raw": "{{localserver}}/hit",
+							"host": [
+								"{{localserver}}"
+							],
+							"path": [
+								"hit"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Save 4 request",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains the correct id\", function () {\r",
+									"    pm.expect(pm.response.json().id).to.equal(4);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains the correct app\", function () {\r",
+									"    pm.expect(pm.response.json().app).to.equal(\"ewm-main-service\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains the correct uri\", function () {\r",
+									"    pm.expect(pm.response.json().uri).to.equal(\"/events/1\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains the correct ip\", function () {\r",
+									"    pm.expect(pm.response.json().ip).to.equal(\"192.163.0.1\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains the correct timestamp\", function () {\r",
+									"    pm.expect(pm.response.json().timestamp).to.equal(\"2022-09-27T11:00:23\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"app\": \"ewm-main-service\",\r\n  \"uri\": \"/events/1\",\r\n  \"ip\": \"192.163.0.1\",\r\n  \"timestamp\": \"2022-09-27 11:00:23\"\r\n}"
+						},
+						"url": {
+							"raw": "{{localserver}}/hit",
+							"host": [
+								"{{localserver}}"
+							],
+							"path": [
+								"hit"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get statistic only time",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response is an array with length 2\", function () {\r",
+									"    var response = pm.response.json();\r",
+									"    pm.expect(response).to.be.an('array').with.lengthOf(2);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response matches expected answer\", function () {\r",
+									"    var expectedAnswer = [\r",
+									"        {\r",
+									"            \"app\": \"ewm-main-service\",\r",
+									"            \"uri\": \"/events/1\",\r",
+									"            \"hits\": 3\r",
+									"        },\r",
+									"        {\r",
+									"            \"app\": \"ewm-main-service\",\r",
+									"            \"uri\": \"/events/10\",\r",
+									"            \"hits\": 1\r",
+									"        }\r",
+									"    ];\r",
+									"    var response = pm.response.json();\r",
+									"    pm.expect(response).to.deep.include.members(expectedAnswer);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{localserver}}/stats?start=2022-09-01 00:00:00&end=2022-09-30 00:00:00",
+							"host": [
+								"{{localserver}}"
+							],
+							"path": [
+								"stats"
+							],
+							"query": [
+								{
+									"key": "start",
+									"value": "2022-09-01 00:00:00"
+								},
+								{
+									"key": "end",
+									"value": "2022-09-30 00:00:00"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get unique statistic",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response is an array with length 2\", function () {\r",
+									"    var response = pm.response.json();\r",
+									"    pm.expect(response).to.be.an('array').with.lengthOf(2);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response matches expected answer\", function () {\r",
+									"    var expectedAnswer = [\r",
+									"        {\r",
+									"            \"app\": \"ewm-main-service\",\r",
+									"            \"uri\": \"/events/1\",\r",
+									"            \"hits\": 2\r",
+									"        },\r",
+									"        {\r",
+									"            \"app\": \"ewm-main-service\",\r",
+									"            \"uri\": \"/events/10\",\r",
+									"            \"hits\": 1\r",
+									"        }\r",
+									"    ];\r",
+									"    var response = pm.response.json();\r",
+									"    pm.expect(response).to.deep.include.members(expectedAnswer);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{localserver}}/stats?start=2022-09-01 00:00:00&end=2022-09-30 00:00:00&unique=true",
+							"host": [
+								"{{localserver}}"
+							],
+							"path": [
+								"stats"
+							],
+							"query": [
+								{
+									"key": "start",
+									"value": "2022-09-01 00:00:00"
+								},
+								{
+									"key": "end",
+									"value": "2022-09-30 00:00:00"
+								},
+								{
+									"key": "unique",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "localhost",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "localserver",
+			"value": "http://localhost:9090",
+			"type": "string"
+		}
+	]
+}
