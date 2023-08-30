@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.explorewithme.event.mapper.EventMapper;
-import ru.practicum.explorewithme.event.model.Event;
 import ru.practicum.explorewithme.event.model.EventDto;
 import ru.practicum.explorewithme.event.repository.EventRepository;
 import ru.practicum.explorewithme.exception.ResourceNotFoundException;
