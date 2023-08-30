@@ -1,6 +1,5 @@
 package ru.practicum.explorewithme.event.service;
 
-import ru.practicum.explorewithme.event.model.Event;
 import ru.practicum.explorewithme.event.model.EventDto;
 
 import java.util.List;
