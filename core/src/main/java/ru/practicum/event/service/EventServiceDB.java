@@ -119,16 +119,16 @@ public class EventServiceDB implements EventService {
             usersQuery = userRepository.findAll();
         } else {
             for (Long id : users) {
-                usersQuery.add(userRepository.findById(Math.toIntExact(id)).
-                        orElseThrow(() -> new ValidationException("Пользователя с " + id + " не существует!")));
+                usersQuery.add(userRepository.findById(Math.toIntExact(id))
+                        .orElseThrow(() -> new ValidationException("Пользователя с " + id + " не существует!")));
             }
         }
         if (categories.isEmpty()) {
             categoriesQuery = categoryRepository.findAll();
         } else {
             for (Long id : categories) {
-                categoriesQuery.add(categoryRepository.findById(Math.toIntExact(id)).
-                        orElseThrow(() -> new ValidationException("Категории с " + id + " не существует!")));
+                categoriesQuery.add(categoryRepository.findById(Math.toIntExact(id))
+                                .orElseThrow(() -> new ValidationException("Категории с " + id + " не существует!")));
             }
         }
         if (states.isEmpty()) {
@@ -148,8 +148,8 @@ public class EventServiceDB implements EventService {
             oldEvent.setAnnotation(eventDtoRequest.getAnnotation());
         }
         if (eventDtoRequest.getCategory() != null) {
-            oldEvent.setCategory(categoryRepository.findById(eventDtoRequest.getCategory()).
-                    orElseThrow(() -> new ValidationException("Такой категории не существует!")));
+            oldEvent.setCategory(categoryRepository.findById(eventDtoRequest.getCategory())
+                    .orElseThrow(() -> new ValidationException("Такой категории не существует!")));
         }
         if (!eventDtoRequest.getDescription().isEmpty() || eventDtoRequest.getDescription() != null) {
             oldEvent.setDescription(eventDtoRequest.getDescription());

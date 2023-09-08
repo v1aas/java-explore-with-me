@@ -144,8 +144,8 @@ public class UserServiceDB implements UserService {
         }
         return UserRequestMapper.toRequestDtoList(
                 requestRepository.findAllByEvent(
-                        eventRepository.findById(eventId).
-                                orElseThrow(() -> new ResourceNotFoundException("Такого события нет!"))));
+                        eventRepository.findById(eventId)
+                                        .orElseThrow(() -> new ResourceNotFoundException("Такого события нет!"))));
     }
 
     @Override
