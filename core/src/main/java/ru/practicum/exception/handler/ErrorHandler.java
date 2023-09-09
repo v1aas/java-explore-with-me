@@ -1,6 +1,7 @@
 package ru.practicum.exception.handler;
 
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -25,9 +26,9 @@ public class ErrorHandler {
                 exception.getMessage(), LocalDateTime.now());
     }
 
-    @ExceptionHandler
+    @ExceptionHandler({ConstraintViolationException.class, ValidationException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse expValidation(final ValidationException exception) {
+    public ErrorResponse expValidation(final RuntimeException exception) {
         log.error("ERROR 400: {}", exception.getMessage());
         return new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), "Incorrectly made request.",
                 exception.getMessage(), LocalDateTime.now());

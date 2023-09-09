@@ -10,6 +10,7 @@ import ru.practicum.category.repository.CategoryRepository;
 import ru.practicum.event.repository.EventRepository;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.ResourceNotFoundException;
+import ru.practicum.exception.ValidationException;
 
 import java.util.List;
 
@@ -22,6 +23,9 @@ public class CategoryServiceDB implements CategoryService {
 
     @Override
     public CategoryDto createCategory(CategoryDto categoryDto) {
+        if (categoryDto.getName() == null || categoryDto.getName().trim().isEmpty()) {
+            throw new ValidationException("Имя не может быть пустым!");
+        }
         return CategoryMapper.toCategoryDto(repository.save(CategoryMapper.toCategory(categoryDto)));
     }
 

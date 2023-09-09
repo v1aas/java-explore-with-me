@@ -12,6 +12,6 @@ import java.util.List;
 public class CompilationDtoRequest {
     private Integer id;
     private List<Integer> events;
-    private boolean pinned;
+    private Boolean pinned;
     private String title;
 }

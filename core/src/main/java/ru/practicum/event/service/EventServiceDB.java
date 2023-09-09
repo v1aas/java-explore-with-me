@@ -13,6 +13,7 @@ import ru.practicum.event.model.EventDto;
 import ru.practicum.event.model.EventDtoRequest;
 import ru.practicum.event.model.State;
 import ru.practicum.event.repository.EventRepository;
+import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.ResourceNotFoundException;
 import ru.practicum.exception.ValidationException;
 import ru.practicum.user.model.User;
@@ -115,6 +116,22 @@ public class EventServiceDB implements EventService {
         List<User> usersQuery = new ArrayList<>();
         List<Category> categoriesQuery = new ArrayList<>();
         List<State> statesQuery = new ArrayList<>();
+        LocalDateTime startQuery;
+        LocalDateTime endQuery;
+        try {
+            if (start != null) {
+                startQuery = LocalDateTime.parse(start, formatter);
+            } else {
+                startQuery = LocalDateTime.now();
+            }
+            if (end != null) {
+                endQuery = LocalDateTime.parse(end, formatter);
+            } else {
+                endQuery = LocalDateTime.now().plusYears(10);
+            }
+        } catch (RuntimeException e) {
+            throw new ValidationException(e.getMessage());
+        }
         if (users.isEmpty()) {
             usersQuery = userRepository.findAll();
         } else {
@@ -128,7 +145,7 @@ public class EventServiceDB implements EventService {
         } else {
             for (Long id : categories) {
                 categoriesQuery.add(categoryRepository.findById(Math.toIntExact(id))
-                                .orElseThrow(() -> new ValidationException("Категории с " + id + " не существует!")));
+                        .orElseThrow(() -> new ValidationException("Категории с " + id + " не существует!")));
             }
         }
         if (states.isEmpty()) {
@@ -137,8 +154,7 @@ public class EventServiceDB implements EventService {
             statesQuery.add(State.PUBLISHED);
         }
         return EventMapper.toEventDtoList(repository.findByAdminQuery(usersQuery, statesQuery, categoriesQuery,
-                LocalDateTime.parse(start, formatter), LocalDateTime.parse(end, formatter),
-                PageRequest.of(from, size)).toList());
+                startQuery, endQuery, PageRequest.of(from, size)).toList());
     }
 
     @Override
@@ -170,9 +186,18 @@ public class EventServiceDB implements EventService {
         oldEvent.setPaid(eventDtoRequest.isPaid());
         oldEvent.setRequestModeration(eventDtoRequest.isRequestModeration());
         if (eventDtoRequest.getStateAction().equals("PUBLISH_EVENT")) {
+            if (oldEvent.getState().equals(State.CANCELED) || oldEvent.getState().equals(State.PUBLISHED)) {
+                throw new ConflictException("Событие уже опубликовано или отменено!");
+            }
             oldEvent.setState(State.PUBLISHED);
+            if (!oldEvent.getEventDate().isBefore(LocalDateTime.now().plusHours(1))) {
+                throw new ConflictException("Дата начала события должна быть не ранее чем за час от даты публикации!");
+            }
             oldEvent.setPublishedOn(LocalDateTime.now());
         } else {
+            if (oldEvent.getState().equals(State.PUBLISHED)) {
+                throw new ConflictException("Событие уже нельзя отклонить!");
+            }
             oldEvent.setState(State.CANCELED);
         }
         return EventMapper.toEventDto(repository.save(oldEvent));

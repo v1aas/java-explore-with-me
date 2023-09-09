@@ -48,10 +48,10 @@ public class UserServiceDB implements UserService {
 
     @Override
     public UserDto createUser(UserDto user) {
-        if (user.getName() == null || user.getEmail() == null) {
-            throw new ValidationException("Нужно заполнить все поля!");
+        if (user.getName() == null || user.getName().trim().isEmpty()) {
+            throw new ValidationException("Нужно заполнить имя!");
         }
-        if (!user.getEmail().contains("@")) {
+        if (user.getEmail() == null || !user.getEmail().contains("@")) {
             throw new ValidationException("Почта некорректна");
         }
         return UserMapper.toUserDto(repository.save(UserMapper.toUser(user)));
@@ -83,6 +83,12 @@ public class UserServiceDB implements UserService {
     public EventDto createEventForUser(Integer userId, EventDtoRequest event) {
         if (repository.findById(userId).isEmpty()) {
             throw new ResourceNotFoundException("Такого пользователя не существует");
+        }
+        if (event.getDescription() == null || event.getDescription().trim().isEmpty()) {
+            throw new ValidationException("Описание не должно быть пустым!");
+        }
+        if (event.getAnnotation() == null || event.getAnnotation().trim().isEmpty()) {
+            throw new ValidationException("Описание не должно быть пустым!");
         }
         Event newEvent = EventMapper.toEvent(event, repository.findById(userId).get());
         newEvent.setCategory(categoryRepository.findById(newEvent.getCategory().getId())
@@ -118,7 +124,7 @@ public class UserServiceDB implements UserService {
             throw new ResourceNotFoundException("Такого пользователя не существует");
         }
         if (eventRepository.findByInitiatorAndId(repository.findById(userId).get(), eventId).isEmpty()) {
-            throw new ValidationException("Данный пользователь не создатель события");
+            throw new ConflictException("Данный пользователь не создатель события");
         }
         Event newEvent = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("Такого события нет"));
@@ -133,6 +139,17 @@ public class UserServiceDB implements UserService {
         newEvent.setParticipantLimit(event.getParticipantLimit());
         newEvent.setRequestModeration(event.isRequestModeration());
         newEvent.setTitle(event.getTitle());
+        if (event.getStateAction().equals("SEND_TO_REVIEW")) {
+            if (!newEvent.getState().equals(State.PENDING)) {
+                throw new ConflictException("Событие уже опубликовано или отменено!");
+            }
+            newEvent.setState(State.PENDING);
+        } else if (event.getStateAction().equals("CANCEL_REVIEW")) {
+            if (newEvent.getState().equals(State.PUBLISHED)) {
+                throw new ConflictException("Событие уже нельзя отклонить!");
+            }
+            newEvent.setState(State.CANCELED);
+        }
         return EventMapper.toEventDto(eventRepository.save(newEvent));
     }
 
@@ -145,21 +162,28 @@ public class UserServiceDB implements UserService {
         return UserRequestMapper.toRequestDtoList(
                 requestRepository.findAllByEvent(
                         eventRepository.findById(eventId)
-                                        .orElseThrow(() -> new ResourceNotFoundException("Такого события нет!"))));
+                                .orElseThrow(() -> new ResourceNotFoundException("Такого события нет!"))));
     }
 
     @Override
     public AllUserRequestResponse changeStatusRequestForEvent(Integer userId, Integer eventId,
                                                               AllUserRequestFormat request) {
-        if (!eventRepository.findById(eventId).orElseThrow(() -> new ResourceNotFoundException("Такого события нет!"))
-                .getInitiator().getId().equals(userId)) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new ResourceNotFoundException("Такого события нет!"));
+        if (event.getInitiator().getId().equals(userId)) {
             throw new ValidationException("Изменять запросы может только его создатель!");
         }
         for (Integer id : request.getRequestIds()) {
             UserRequest userRequest = requestRepository.findById(id)
                     .orElseThrow(() -> new ResourceNotFoundException("Запроса с id " + id + "нет!"));
+            if (!userRequest.getStatus().equals(Status.PENDING)) {
+                throw new ConflictException("Заявка уже принята или отклонена!");
+            }
             userRequest.setStatus(request.getStatus());
             requestRepository.save(userRequest);
+        }
+        if (event.getParticipantLimit().equals(event.getConfirmedRequests())) {
+            throw new ConflictException("Количество заявок - максимально!");
         }
         return new AllUserRequestResponse(
                 UserRequestMapper.toRequestDtoList(requestRepository.findAllByStatus(Status.CONFIRMED)),
@@ -177,7 +201,7 @@ public class UserServiceDB implements UserService {
             }
         }
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new ResourceNotFoundException("Такого события нет!"));
+                .orElseThrow(() -> new ConflictException("Такого события нет!"));
         if (event.getCreatedOn() == null) {
             throw new ConflictException("Нельзя участвовать в неопубликованном событии!");
         }
@@ -207,7 +231,7 @@ public class UserServiceDB implements UserService {
     public UserRequestDto cancelUserRequestForEvent(Integer userId, Integer requestId) {
         if (!requestRepository.findById(requestId).orElseThrow(() -> new ResourceNotFoundException("Такого запроса нет!"))
                 .getRequester().getId().equals(userId)) {
-            throw new ValidationException("Отменить запрос может только его создатель!");
+            throw new ConflictException("Отменить запрос может только его создатель!");
         }
         UserRequest userRequest = requestRepository
                 .findById(requestId).orElseThrow(() -> new ResourceNotFoundException("Такого события нет!"));

@@ -30,9 +30,15 @@ public class CompilationServiceDB implements CompilationService {
         for (Integer id : compilationDto.getEvents()) {
             events.add(eventRepository.findById(id).orElseThrow(() -> new ValidationException("Такого события нет!")));
         }
+        if (compilationDto.getPinned() == null) {
+            compilationDto.setPinned(false);
+        }
+        if (compilationDto.getTitle() == null || compilationDto.getTitle().trim().isEmpty()) {
+            throw new ValidationException("Заголовок не может быть пустым!");
+        }
         return CompilationMapper.toCompilationDto(repository.save(new Compilation(compilationDto.getId(),
                 events,
-                compilationDto.isPinned(),
+                compilationDto.getPinned(),
                 compilationDto.getTitle())));
     }
 
@@ -50,7 +56,7 @@ public class CompilationServiceDB implements CompilationService {
             events.add(eventRepository.findById(id).orElseThrow(() -> new ValidationException("Такого события нет!")));
         }
         oldCompilation.setEvents(events);
-        oldCompilation.setPinned(compilationDto.isPinned());
+        oldCompilation.setPinned(compilationDto.getPinned());
         oldCompilation.setTitle(compilationDto.getTitle());
         return CompilationMapper.toCompilationDto(repository.save(oldCompilation));
     }
