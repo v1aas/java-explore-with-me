@@ -100,7 +100,7 @@ public class UserServiceDB implements UserService {
                     "- пустой \n" +
                     "- меньше 20 символов или больше 2000");
         }
-        if (event.getTitle().length() < 3 || event.getTitle().length() > 120 ) {
+        if (event.getTitle().length() < 3 || event.getTitle().length() > 120) {
             throw new ValidationException("Не валидная длина заголовка!");
         }
         if (event.getEventDate().isBefore(LocalDateTime.now())) {
@@ -161,7 +161,7 @@ public class UserServiceDB implements UserService {
                     "- пустой \n" +
                     "- меньше 20 символов или больше 2000");
         }
-        if (event.getTitle().length() < 3 || event.getTitle().length() > 120 ) {
+        if (event.getTitle().length() < 3 || event.getTitle().length() > 120) {
             throw new ValidationException("Не валидная длина заголовка!");
         }
         if (event.getEventDate().isBefore(LocalDateTime.now())) {

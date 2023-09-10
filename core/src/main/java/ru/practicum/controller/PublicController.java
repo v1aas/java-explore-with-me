@@ -52,7 +52,7 @@ public class PublicController {
 
     @PatchMapping("/users/{userId}/events/{eventId}")
     public EventDto patchEventForOwner(@PathVariable int userId, @PathVariable int eventId,
-                                      @RequestBody EventDtoRequest eventDtoRequest) {
+                                       @RequestBody EventDtoRequest eventDtoRequest) {
         log.info("Update event {} for user {}", eventId, userId);
         return userService.updateEventForOwner(userId, eventId, eventDtoRequest);
     }
@@ -120,7 +120,7 @@ public class PublicController {
     @GetMapping("/events/{id}")
     public EventDto getEvent(@PathVariable Integer id, HttpServletRequest request) {
         log.info("Get event: {}", id);
-        return eventService.getEvent(id ,request);
+        return eventService.getEvent(id, request);
     }
 
     @GetMapping("/compilations")

@@ -195,7 +195,7 @@ public class EventServiceDB implements EventService {
                     "- пустой \n" +
                     "- меньше 20 символов или больше 2000");
         }
-        if (eventDtoRequest.getTitle().length() < 3 || eventDtoRequest.getTitle().length() > 120 ) {
+        if (eventDtoRequest.getTitle().length() < 3 || eventDtoRequest.getTitle().length() > 120) {
             throw new ValidationException("Не валидная длина заголовка!");
         }
         if (eventDtoRequest.getEventDate().isBefore(LocalDateTime.now())) {
@@ -214,7 +214,7 @@ public class EventServiceDB implements EventService {
         if (eventDtoRequest.getPaid() != null) {
             oldEvent.setPaid(eventDtoRequest.getPaid());
         }
-        if (eventDtoRequest.getRequestModeration() != null ) {
+        if (eventDtoRequest.getRequestModeration() != null) {
             oldEvent.setRequestModeration(eventDtoRequest.getRequestModeration());
         }
         if (eventDtoRequest.getStateAction() != null) {
