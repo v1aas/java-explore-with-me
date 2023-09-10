@@ -100,6 +100,7 @@ public class AdminController {
     }
 
     @DeleteMapping("/compilations/{compId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteCompilation(@PathVariable Integer compId) {
         compilationService.deleteCompilation(compId);
     }

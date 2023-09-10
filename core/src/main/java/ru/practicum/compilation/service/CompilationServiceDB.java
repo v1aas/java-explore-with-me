@@ -36,6 +36,9 @@ public class CompilationServiceDB implements CompilationService {
         if (compilationDto.getTitle() == null || compilationDto.getTitle().trim().isEmpty()) {
             throw new ValidationException("Заголовок не может быть пустым!");
         }
+        if (compilationDto.getTitle().length() > 50) {
+            throw new ValidationException("Слишком длинный заголовок!");
+        }
         return CompilationMapper.toCompilationDto(repository.save(new Compilation(compilationDto.getId(),
                 events,
                 compilationDto.getPinned(),
@@ -51,6 +54,9 @@ public class CompilationServiceDB implements CompilationService {
     public CompilationDto updateCompilation(Integer compId, CompilationDtoRequest compilationDto) {
         Compilation oldCompilation = repository.findById(compId)
                 .orElseThrow(() -> new ValidationException("Такой подборки нет!"));
+        if (compilationDto.getTitle().length() > 50) {
+            throw new ValidationException("Слишком длинный заголовок!");
+        }
         List<Event> events = new ArrayList<>();
         for (Integer id : compilationDto.getEvents()) {
             events.add(eventRepository.findById(id).orElseThrow(() -> new ValidationException("Такого события нет!")));

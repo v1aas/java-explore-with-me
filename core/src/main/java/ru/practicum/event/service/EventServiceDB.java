@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -100,13 +101,17 @@ public class EventServiceDB implements EventService {
     }
 
     @Override
-    public EventDto getEvent(Integer id) {
+    public EventDto getEvent(Integer id, HttpServletRequest request) {
         Event event = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Такого события нет!"));
-        if (event.getViews() == null) {
-            event.setViews(1);
-        } else {
-            event.setViews(event.getViews() + 1);
+        if (!event.getState().equals(State.PUBLISHED)) {
+            throw new ResourceNotFoundException("Такого события нет!");
         }
+        statsClient.postStatistic(request.getRemoteAddr(), request.getRequestURI(), LocalDateTime.now());
+        event.setViews(Math.toIntExact(statsClient.getStatistic(
+                "2000-09-01 00:00:00",
+                "2032-09-30 00:00:00",
+                Collections.singletonList(request.getRequestURI()),
+                true).get(0).getHits()));
         return EventMapper.toEventDto(repository.save(event));
     }
 
@@ -135,9 +140,13 @@ public class EventServiceDB implements EventService {
         if (users.isEmpty()) {
             usersQuery = userRepository.findAll();
         } else {
-            for (Long id : users) {
-                usersQuery.add(userRepository.findById(Math.toIntExact(id))
-                        .orElseThrow(() -> new ValidationException("Пользователя с " + id + " не существует!")));
+            if (users.size() == 1 && users.get(0) == 0) {
+                usersQuery = userRepository.findAll();
+            } else {
+                for (Long id : users) {
+                    usersQuery.add(userRepository.findById(Math.toIntExact(id))
+                            .orElseThrow(() -> new ValidationException("Пользователя с " + id + " не существует!")));
+                }
             }
         }
         if (categories.isEmpty()) {
@@ -171,7 +180,26 @@ public class EventServiceDB implements EventService {
             oldEvent.setDescription(eventDtoRequest.getDescription());
         }
         if (eventDtoRequest.getEventDate() != null) {
+            if (eventDtoRequest.getEventDate().isBefore(oldEvent.getEventDate())) {
+                throw new ValidationException("Невозможно установить такую дату");
+            }
             oldEvent.setEventDate(eventDtoRequest.getEventDate());
+        }
+        if (eventDtoRequest.getDescription() == null || eventDtoRequest.getDescription().trim().isEmpty()
+                || eventDtoRequest.getDescription().length() < 20) {
+            throw new ValidationException("Описание не должно быть пустым или быть меньше 20 символов!");
+        }
+        if (eventDtoRequest.getAnnotation() == null || eventDtoRequest.getAnnotation().trim().isEmpty()
+                || eventDtoRequest.getAnnotation().length() < 20 || eventDtoRequest.getAnnotation().length() > 2000) {
+            throw new ValidationException("Аннотация не должна быть: \n" +
+                    "- пустой \n" +
+                    "- меньше 20 символов или больше 2000");
+        }
+        if (eventDtoRequest.getTitle().length() < 3 || eventDtoRequest.getTitle().length() > 120 ) {
+            throw new ValidationException("Не валидная длина заголовка!");
+        }
+        if (eventDtoRequest.getEventDate().isBefore(LocalDateTime.now())) {
+            throw new ValidationException("Невозможно установить такое время!");
         }
         if (eventDtoRequest.getLocation() != null) {
             oldEvent.setLat(eventDtoRequest.getLocation().getLat());
@@ -183,22 +211,28 @@ public class EventServiceDB implements EventService {
         if (eventDtoRequest.getTitle() != null && !eventDtoRequest.getTitle().isEmpty()) {
             oldEvent.setTitle(eventDtoRequest.getTitle());
         }
-        oldEvent.setPaid(eventDtoRequest.isPaid());
-        oldEvent.setRequestModeration(eventDtoRequest.isRequestModeration());
-        if (eventDtoRequest.getStateAction().equals("PUBLISH_EVENT")) {
-            if (oldEvent.getState().equals(State.CANCELED) || oldEvent.getState().equals(State.PUBLISHED)) {
-                throw new ConflictException("Событие уже опубликовано или отменено!");
+        if (eventDtoRequest.getPaid() != null) {
+            oldEvent.setPaid(eventDtoRequest.getPaid());
+        }
+        if (eventDtoRequest.getRequestModeration() != null ) {
+            oldEvent.setRequestModeration(eventDtoRequest.getRequestModeration());
+        }
+        if (eventDtoRequest.getStateAction() != null) {
+            if (eventDtoRequest.getStateAction().equals("PUBLISH_EVENT")) {
+                if (oldEvent.getState().equals(State.CANCELED) || oldEvent.getState().equals(State.PUBLISHED)) {
+                    throw new ConflictException("Событие уже опубликовано или отменено!");
+                }
+                oldEvent.setState(State.PUBLISHED);
+                if (!oldEvent.getEventDate().isAfter(LocalDateTime.now().plusHours(1))) {
+                    throw new ConflictException("Дата начала события должна быть не ранее чем за час от даты публикации!");
+                }
+                oldEvent.setPublishedOn(LocalDateTime.now());
+            } else {
+                if (oldEvent.getState().equals(State.PUBLISHED)) {
+                    throw new ConflictException("Событие уже нельзя отклонить!");
+                }
+                oldEvent.setState(State.CANCELED);
             }
-            oldEvent.setState(State.PUBLISHED);
-            if (!oldEvent.getEventDate().isBefore(LocalDateTime.now().plusHours(1))) {
-                throw new ConflictException("Дата начала события должна быть не ранее чем за час от даты публикации!");
-            }
-            oldEvent.setPublishedOn(LocalDateTime.now());
-        } else {
-            if (oldEvent.getState().equals(State.PUBLISHED)) {
-                throw new ConflictException("Событие уже нельзя отклонить!");
-            }
-            oldEvent.setState(State.CANCELED);
         }
         return EventMapper.toEventDto(repository.save(oldEvent));
     }

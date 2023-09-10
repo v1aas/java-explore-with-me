@@ -14,7 +14,7 @@ public interface EventService {
                                     LocalDateTime end, Boolean onlyAvailable, String sort, Integer from, Integer size,
                                     HttpServletRequest request);
 
-    public EventDto getEvent(Integer id);
+    public EventDto getEvent(Integer id, HttpServletRequest request);
 
     public List<EventDto> getAdminEvents(List<Long> users, List<State> states, List<Long> categories,
                                          String start, String end, Integer from, Integer size);

@@ -54,6 +54,12 @@ public class UserServiceDB implements UserService {
         if (user.getEmail() == null || !user.getEmail().contains("@")) {
             throw new ValidationException("Почта некорректна");
         }
+        if (user.getName().length() < 2 || user.getName().length() > 250) {
+            throw new ValidationException("Имя слишком длинное или короткое!");
+        }
+        if (user.getEmail().length() < 6 || user.getEmail().length() > 254 || !isValidEmail(user.getEmail())) {
+            throw new ValidationException("Почта слишком длинная или короткая!");
+        }
         return UserMapper.toUserDto(repository.save(UserMapper.toUser(user)));
     }
 
@@ -84,11 +90,30 @@ public class UserServiceDB implements UserService {
         if (repository.findById(userId).isEmpty()) {
             throw new ResourceNotFoundException("Такого пользователя не существует");
         }
-        if (event.getDescription() == null || event.getDescription().trim().isEmpty()) {
-            throw new ValidationException("Описание не должно быть пустым!");
+        if (event.getDescription() == null || event.getDescription().trim().isEmpty()
+                || event.getDescription().length() < 20) {
+            throw new ValidationException("Описание не должно быть пустым или быть меньше 20 символов!");
         }
-        if (event.getAnnotation() == null || event.getAnnotation().trim().isEmpty()) {
-            throw new ValidationException("Описание не должно быть пустым!");
+        if (event.getAnnotation() == null || event.getAnnotation().trim().isEmpty()
+                || event.getAnnotation().length() < 20 || event.getAnnotation().length() > 2000) {
+            throw new ValidationException("Аннотация не должна быть: \n" +
+                    "- пустой \n" +
+                    "- меньше 20 символов или больше 2000");
+        }
+        if (event.getTitle().length() < 3 || event.getTitle().length() > 120 ) {
+            throw new ValidationException("Не валидная длина заголовка!");
+        }
+        if (event.getEventDate().isBefore(LocalDateTime.now())) {
+            throw new ValidationException("Невозможно установить такое время!");
+        }
+        if (event.getPaid() == null) {
+            event.setPaid(false);
+        }
+        if (event.getParticipantLimit() == null) {
+            event.setParticipantLimit(0);
+        }
+        if (event.getRequestModeration() == null) {
+            event.setRequestModeration(true);
         }
         Event newEvent = EventMapper.toEvent(event, repository.findById(userId).get());
         newEvent.setCategory(categoryRepository.findById(newEvent.getCategory().getId())
@@ -126,29 +151,68 @@ public class UserServiceDB implements UserService {
         if (eventRepository.findByInitiatorAndId(repository.findById(userId).get(), eventId).isEmpty()) {
             throw new ConflictException("Данный пользователь не создатель события");
         }
+        if (event.getDescription() == null || event.getDescription().trim().isEmpty()
+                || event.getDescription().length() < 20) {
+            throw new ValidationException("Описание не должно быть пустым или быть меньше 20 символов!");
+        }
+        if (event.getAnnotation() == null || event.getAnnotation().trim().isEmpty()
+                || event.getAnnotation().length() < 20 || event.getAnnotation().length() > 2000) {
+            throw new ValidationException("Аннотация не должна быть: \n" +
+                    "- пустой \n" +
+                    "- меньше 20 символов или больше 2000");
+        }
+        if (event.getTitle().length() < 3 || event.getTitle().length() > 120 ) {
+            throw new ValidationException("Не валидная длина заголовка!");
+        }
+        if (event.getEventDate().isBefore(LocalDateTime.now())) {
+            throw new ValidationException("Невозможно установить такое время!");
+        }
         Event newEvent = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("Такого события нет"));
-        newEvent.setAnnotation(event.getAnnotation());
-        newEvent.setCategory(categoryRepository.findById(event.getCategory())
-                .orElseThrow(() -> new ResourceNotFoundException("Такой категории не существует")));
-        newEvent.setDescription(event.getDescription());
-        newEvent.setEventDate(event.getEventDate());
-        newEvent.setLat(event.getLocation().getLat());
-        newEvent.setLon(event.getLocation().getLon());
-        newEvent.setPaid(event.isPaid());
-        newEvent.setParticipantLimit(event.getParticipantLimit());
-        newEvent.setRequestModeration(event.isRequestModeration());
-        newEvent.setTitle(event.getTitle());
-        if (event.getStateAction().equals("SEND_TO_REVIEW")) {
-            if (!newEvent.getState().equals(State.PENDING)) {
-                throw new ConflictException("Событие уже опубликовано или отменено!");
+        if (event.getAnnotation() != null) {
+            newEvent.setAnnotation(event.getAnnotation());
+        }
+        if (event.getCategory() != null) {
+            newEvent.setCategory(categoryRepository.findById(event.getCategory())
+                    .orElseThrow(() -> new ResourceNotFoundException("Такой категории не существует")));
+        }
+        if (event.getDescription() != null) {
+            newEvent.setDescription(event.getDescription());
+        }
+        if (event.getEventDate() != null) {
+            if (event.getEventDate().isBefore(newEvent.getEventDate())) {
+                throw new ValidationException("Невозможно установить такую дату");
             }
-            newEvent.setState(State.PENDING);
-        } else if (event.getStateAction().equals("CANCEL_REVIEW")) {
-            if (newEvent.getState().equals(State.PUBLISHED)) {
-                throw new ConflictException("Событие уже нельзя отклонить!");
+            newEvent.setEventDate(event.getEventDate());
+        }
+        if (event.getLocation() != null) {
+            newEvent.setLat(event.getLocation().getLat());
+            newEvent.setLon(event.getLocation().getLon());
+        }
+        if (event.getPaid() != null) {
+            newEvent.setPaid(event.getPaid());
+        }
+        if (event.getParticipantLimit() != null) {
+            newEvent.setParticipantLimit(event.getParticipantLimit());
+        }
+        if (event.getRequestModeration() != null) {
+            newEvent.setRequestModeration(event.getRequestModeration());
+        }
+        if (event.getTitle() != null) {
+            newEvent.setTitle(event.getTitle());
+        }
+        if (event.getStateAction() != null) {
+            if (event.getStateAction().equals("SEND_TO_REVIEW")) {
+                if (!newEvent.getState().equals(State.PENDING)) {
+                    throw new ConflictException("Событие уже опубликовано или отменено!");
+                }
+                newEvent.setState(State.PENDING);
+            } else if (event.getStateAction().equals("CANCEL_REVIEW")) {
+                if (newEvent.getState().equals(State.PUBLISHED)) {
+                    throw new ConflictException("Событие уже нельзя отклонить!");
+                }
+                newEvent.setState(State.CANCELED);
             }
-            newEvent.setState(State.CANCELED);
         }
         return EventMapper.toEventDto(eventRepository.save(newEvent));
     }
@@ -239,5 +303,23 @@ public class UserServiceDB implements UserService {
         return UserRequestMapper.toRequestDto(userRequest);
     }
 
+    private boolean isValidEmail(String email) {
+        String[] parts = email.split("@");
+
+        String localPart = parts[0];
+        String domainPart = parts[1];
+
+        if (localPart.length() > 64) {
+            return false;
+        }
+
+        String[] domainParts = domainPart.split("\\.");
+        for (String domain : domainParts) {
+            if (domain.length() > 63) {
+                return false;
+            }
+        }
+        return true;
+    }
 
 }

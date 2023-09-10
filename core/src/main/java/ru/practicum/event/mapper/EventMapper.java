@@ -22,7 +22,7 @@ public class EventMapper {
         event.setEventDate(eventDto.getEventDate());
         event.setLon(eventDto.getLocation().getLon());
         event.setLat(eventDto.getLocation().getLat());
-        event.setPaid(eventDto.isPaid());
+        event.setPaid(eventDto.getPaid());
         event.setParticipantLimit(eventDto.getParticipantLimit());
         event.setTitle(eventDto.getTitle());
         event.setInitiator(user);

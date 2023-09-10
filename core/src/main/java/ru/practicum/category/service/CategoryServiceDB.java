@@ -26,6 +26,9 @@ public class CategoryServiceDB implements CategoryService {
         if (categoryDto.getName() == null || categoryDto.getName().trim().isEmpty()) {
             throw new ValidationException("Имя не может быть пустым!");
         }
+        if (categoryDto.getName().length() > 50) {
+            throw new ValidationException("Имя слишком длинное!");
+        }
         return CategoryMapper.toCategoryDto(repository.save(CategoryMapper.toCategory(categoryDto)));
     }
 
@@ -47,6 +50,9 @@ public class CategoryServiceDB implements CategoryService {
         if (repository.findById(id).isEmpty()) {
             throw new ResourceNotFoundException("Такой категории нет!");
         }
+        if (categoryDto.getName().length() > 50) {
+            throw new ValidationException("Имя слишком длинное!");
+        }
         Category oldCategory = repository.findById(id).get();
         oldCategory.setName(categoryDto.getName());
         return CategoryMapper.toCategoryDto(repository.save(oldCategory));
@@ -54,7 +60,7 @@ public class CategoryServiceDB implements CategoryService {
 
     @Override
     public List<CategoryDto> getAllCategory(Integer from, Integer size) {
-        return CategoryMapper.toCategoryDtoList(repository.findAll(PageRequest.of(from, size)).toList());
+        return CategoryMapper.toCategoryDtoList(repository.findAll(PageRequest.of(from / size, size)).toList());
     }
 
     @Override

@@ -1,13 +1,20 @@
 package ru.practicum.client;
 
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriBuilderFactory;
+import ru.practicum.dto.GeneralStatsDto;
 import ru.practicum.dto.StatisticDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class StatsClient {
@@ -16,7 +23,8 @@ public class StatsClient {
 
     public StatsClient(RestTemplateBuilder builder) {
         this.rest = builder
-                .uriTemplateHandler(new DefaultUriBuilderFactory("http://stats:9090"))
+                                                                                // TODO исправить на stats
+                .uriTemplateHandler(new DefaultUriBuilderFactory("http://localhost:9090"))
                 .build();
     }
 
@@ -33,10 +41,21 @@ public class StatsClient {
         }
     }
 
-    public void getStatistic(String start, String end, List<String> uris, Boolean unique) {
+    public List<GeneralStatsDto> getStatistic(String start, String end, List<String> uris, Boolean unique) {
         try {
-            rest.getForObject("/stats?start=" + start + "&end=" + end + "&uris=" + uris + "&unique=" + unique,
-                    List.class);
+            String urisParam = uris.stream()
+                    .map(uri -> "uris=" + uri)
+                    .collect(Collectors.joining("&"));
+            ResponseEntity<String> response = rest.getForEntity("/stats?start=" + start + "&end=" + end + "&"
+                    + urisParam + "&unique=" + unique, String.class);
+            if (response.getStatusCode() == HttpStatus.OK) {
+                ObjectMapper mapper = new ObjectMapper();
+                return mapper.readValue(response.getBody(), new TypeReference<List<GeneralStatsDto>>() {
+                });
+            } else {
+                throw new RuntimeException("Ошибка при получении статистики: " + response.getStatusCode() + "\n " +
+                        response.getBody());
+            }
         } catch (Exception e) {
             throw new RuntimeException("Ошибка при сохранении статистики!");
         }
