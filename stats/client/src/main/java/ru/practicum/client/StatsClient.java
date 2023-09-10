@@ -24,7 +24,7 @@ public class StatsClient {
     public StatsClient(RestTemplateBuilder builder) {
         this.rest = builder
                                                                                 // TODO исправить на stats
-                .uriTemplateHandler(new DefaultUriBuilderFactory("http://localhost:9090"))
+                .uriTemplateHandler(new DefaultUriBuilderFactory("http://stats:9090"))
                 .build();
     }
 
