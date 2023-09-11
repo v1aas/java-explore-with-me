@@ -155,6 +155,7 @@ public class UserServiceDB implements UserService {
         }
         Event newEvent = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("Такого события нет"));
+        EventDto eventResponse = null;
         if (event.getAnnotation() != null) {
             if (event.getAnnotation() == null || event.getAnnotation().trim().isEmpty()
                     || event.getAnnotation().length() < 20 || event.getAnnotation().length() > 2000) {
@@ -170,8 +171,9 @@ public class UserServiceDB implements UserService {
         }
         if (event.getDescription() != null) {
             if (event.getDescription() == null || event.getDescription().trim().isEmpty()
-                    || event.getDescription().length() < 20) {
-                throw new ValidationException("Описание не должно быть пустым или быть меньше 20 символов!");
+                    || event.getDescription().length() < 20 || event.getDescription().length() > 7000) {
+                throw new ValidationException("Описание не должно быть пустым или быть меньше 20 или " +
+                        "быть больше 7000 символов!");
             }
             newEvent.setDescription(event.getDescription());
         }
@@ -207,14 +209,18 @@ public class UserServiceDB implements UserService {
                     throw new ConflictException("Событие уже опубликовано или отменено!");
                 }
                 newEvent.setState(State.PENDING);
+                eventResponse = EventMapper.toEventDto(eventRepository.save(newEvent));
+                newEvent.setState(State.PUBLISHED);
             } else if (event.getStateAction().equals("CANCEL_REVIEW")) {
                 if (newEvent.getState().equals(State.PUBLISHED)) {
                     throw new ConflictException("Событие уже нельзя отклонить!");
                 }
+                newEvent.setState(State.PENDING);
+                eventResponse = EventMapper.toEventDto(eventRepository.save(newEvent));
                 newEvent.setState(State.CANCELED);
             }
         }
-        return EventMapper.toEventDto(eventRepository.save(newEvent));
+        return eventResponse;
     }
 
     @Override
@@ -234,8 +240,11 @@ public class UserServiceDB implements UserService {
                                                               AllUserRequestFormat request) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("Такого события нет!"));
-        if (event.getInitiator().getId().equals(userId)) {
+        if (!event.getInitiator().getId().equals(userId)) {
             throw new ValidationException("Изменять запросы может только его создатель!");
+        }
+        if (event.getConfirmedRequests() < event.getParticipantLimit()) {
+            throw new ConflictException("Количество заявок максимально!");
         }
         for (Integer id : request.getRequestIds()) {
             UserRequest userRequest = requestRepository.findById(id)
@@ -245,10 +254,9 @@ public class UserServiceDB implements UserService {
             }
             userRequest.setStatus(request.getStatus());
             requestRepository.save(userRequest);
+            event.setConfirmedRequests(event.getConfirmedRequests() + 1);
         }
-        if (event.getParticipantLimit().equals(event.getConfirmedRequests())) {
-            throw new ConflictException("Количество заявок - максимально!");
-        }
+        eventRepository.save(event);
         return new AllUserRequestResponse(
                 UserRequestMapper.toRequestDtoList(requestRepository.findAllByStatus(Status.CONFIRMED)),
                 UserRequestMapper.toRequestDtoList(requestRepository.findAllByStatus(Status.CANCELLED)));
@@ -256,30 +264,38 @@ public class UserServiceDB implements UserService {
 
     @Override
     public UserRequestDto createRequestForEvent(Integer userId, Integer eventId) {
+        UserRequest userRequest = new UserRequest();
         for (UserRequest request : requestRepository.findAll()) {
             if (request.getEvent().getId().equals(eventId) && request.getRequester().getId().equals(userId)) {
                 throw new ConflictException("Нельзя делать повторный запрос!");
             }
-            if (request.getEvent().getInitiator().getId().equals(userId)) {
-                throw new ConflictException("Инициатор не может делать запрос на свое событие!");
-            }
         }
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ConflictException("Такого события нет!"));
-        if (event.getCreatedOn() == null) {
+        if (event.getInitiator().getId().equals(userId)) {
+            throw new ConflictException("Инициатор не может делать запрос на свое событие!");
+        }
+        if (event.getPublishedOn() == null) {
             throw new ConflictException("Нельзя участвовать в неопубликованном событии!");
         }
-        if (event.getConfirmedRequests() != null) {
-            if (event.getConfirmedRequests().equals(event.getParticipantLimit())) {
-                throw new ConflictException("Достигнут лимит запросов на участие!");
-            }
+        if (event.getConfirmedRequests() < event.getParticipantLimit()) {
+            throw new ConflictException("Достигнут лимит запросов на участие!");
         }
-        UserRequest userRequest = new UserRequest();
-        userRequest.setCreated(LocalDateTime.now());
-        userRequest.setEvent(event);
-        userRequest.setRequester(repository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Такого пользователя не существует!")));
-        userRequest.setStatus(Status.PENDING);
+        if (event.getParticipantLimit() == 0) {
+            userRequest.setCreated(LocalDateTime.now());
+            userRequest.setEvent(event);
+            userRequest.setRequester(repository.findById(userId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Такого пользователя не существует!")));
+            userRequest.setStatus(Status.CONFIRMED);
+            event.setConfirmedRequests(event.getConfirmedRequests() + 1);
+            eventRepository.save(event);
+        } else {
+            userRequest.setCreated(LocalDateTime.now());
+            userRequest.setEvent(event);
+            userRequest.setRequester(repository.findById(userId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Такого пользователя не существует!")));
+            userRequest.setStatus(Status.PENDING);
+        }
         return UserRequestMapper.toRequestDto(requestRepository.save(userRequest));
     }
 

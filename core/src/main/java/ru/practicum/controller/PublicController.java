@@ -2,6 +2,7 @@ package ru.practicum.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.category.model.CategoryDto;
@@ -64,6 +65,7 @@ public class PublicController {
     }
 
     @PostMapping("/users/{userId}/requests")
+    @ResponseStatus(HttpStatus.CREATED)
     public UserRequestDto postRequestForUser(@PathVariable int userId, @RequestParam int eventId) {
         log.info("Post user request for event {}", eventId);
         return userService.createRequestForEvent(userId, eventId);
@@ -105,7 +107,9 @@ public class PublicController {
     public List<EventDto> getEvents(@RequestParam(value = "text", defaultValue = "") String text,
                                     @RequestParam(value = "categories", defaultValue = "") List<Long> categories,
                                     @RequestParam(value = "paid", required = false) Boolean paid,
+                                    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
                                     @RequestParam(value = "rangeStart", required = false) LocalDateTime rangeStart,
+                                    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
                                     @RequestParam(value = "rangeEnd", required = false) LocalDateTime rangeEnd,
                                     @RequestParam(value = "onlyAvailable", defaultValue = "false") Boolean onlyAvailable,
                                     @RequestParam(value = "sort", defaultValue = "EVENT_DATE") String sort,

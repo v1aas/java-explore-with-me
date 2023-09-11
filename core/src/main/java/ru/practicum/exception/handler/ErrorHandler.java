@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -34,7 +35,8 @@ public class ErrorHandler {
                 exception.getMessage(), LocalDateTime.now());
     }
 
-    @ExceptionHandler({ConflictException.class, DataIntegrityViolationException.class})
+    @ExceptionHandler({ConflictException.class, DataIntegrityViolationException.class,
+            HttpMessageNotReadableException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse expConflict(final RuntimeException exception) {
         log.error("ERROR 409: {}", exception.getMessage());

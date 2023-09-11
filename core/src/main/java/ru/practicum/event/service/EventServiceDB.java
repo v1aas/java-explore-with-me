@@ -186,7 +186,7 @@ public class EventServiceDB implements EventService {
         if (eventDtoRequest.getDescription() != null) {
             if (eventDtoRequest.getDescription().trim().isEmpty()
                     || eventDtoRequest.getDescription().length() < 20
-                    || eventDtoRequest.getDescription().length() < 7000) {
+                    || eventDtoRequest.getDescription().length() > 7000) {
                 throw new ValidationException("Описание не должно быть пустым и быть >20 и <7000 символов!");
             } else {
                 oldEvent.setDescription(eventDtoRequest.getDescription());

@@ -27,9 +27,6 @@ public class CompilationServiceDB implements CompilationService {
     @Override
     public CompilationDto createCompilation(CompilationDtoRequest compilationDto) {
         List<Event> events = new ArrayList<>();
-        for (Integer id : compilationDto.getEvents()) {
-            events.add(eventRepository.findById(id).orElseThrow(() -> new ValidationException("Такого события нет!")));
-        }
         if (compilationDto.getPinned() == null) {
             compilationDto.setPinned(false);
         }
@@ -38,6 +35,12 @@ public class CompilationServiceDB implements CompilationService {
         }
         if (compilationDto.getTitle().length() > 50) {
             throw new ValidationException("Слишком длинный заголовок!");
+        }
+        if (compilationDto.getEvents() != null) {
+            for (Integer id : compilationDto.getEvents()) {
+                events.add(eventRepository.findById(id)
+                        .orElseThrow(() -> new ValidationException("Такого события нет!")));
+            }
         }
         return CompilationMapper.toCompilationDto(repository.save(new Compilation(compilationDto.getId(),
                 events,
@@ -58,8 +61,11 @@ public class CompilationServiceDB implements CompilationService {
             throw new ValidationException("Слишком длинный заголовок!");
         }
         List<Event> events = new ArrayList<>();
-        for (Integer id : compilationDto.getEvents()) {
-            events.add(eventRepository.findById(id).orElseThrow(() -> new ValidationException("Такого события нет!")));
+        if (compilationDto.getEvents() != null) {
+            for (Integer id : compilationDto.getEvents()) {
+                events.add(eventRepository.findById(id)
+                        .orElseThrow(() -> new ValidationException("Такого события нет!")));
+            }
         }
         oldCompilation.setEvents(events);
         oldCompilation.setPinned(compilationDto.getPinned());
