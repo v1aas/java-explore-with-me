@@ -23,20 +23,20 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
 
     @Query("SELECT e " +
             "FROM Event as e " +
-            "WHERE (e.annotation LIKE :text OR e.description LIKE :text) " +
-            "AND e.category IN (:categories) " +
-            "AND e.paid IN (:paid) " +
-            "AND e.publishedOn IS NOT NULL " +
+            "WHERE ((:text IS NULL OR e.annotation LIKE :text) OR (:text IS NULL OR e.description LIKE :text)) " +
+            "AND (:categories IS NULL OR e.category IN (:categories)) " +
+            "AND (:paid IS NULL OR e.paid IN (:paid)) " +
+            "AND e.state = 'PUBLISHED' " +
             "AND e.eventDate BETWEEN :start AND :end")
     Page<Event> findByAllQueryNoOnlyAvailable(String text, List<Category> categories, List<Boolean> paid,
                                               LocalDateTime start, LocalDateTime end, Pageable page);
 
     @Query("SELECT e " +
             "FROM Event as e " +
-            "WHERE (e.annotation LIKE %:text% OR e.description LIKE %:text%) " +
-            "AND e.category IN (:categories) " +
-            "AND e.paid IN (:paid) " +
-            "AND e.publishedOn IS NOT NULL " +
+            "WHERE ((:text IS NULL OR e.annotation LIKE %:text%) OR (:text IS NULL OR e.description LIKE %:text%)) " +
+            "AND (:categories IS NULL OR e.category IN (:categories)) " +
+            "AND (:paid IS NULL OR e.paid IN (:paid)) " +
+            "AND e.state = 'PUBLISHED' " +
             "AND e.confirmedRequests < e.participantLimit " +
             "AND e.eventDate BETWEEN :start AND :end")
     Page<Event> findByAllQueryOnlyAvailable(String text, List<Category> categories, List<Boolean> paid,
@@ -44,18 +44,18 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
 
     @Query("SELECT e " +
             "FROM Event as e " +
-            "WHERE e.category IN (:categories) " +
-            "AND e.paid IN (:paid) " +
-            "AND e.publishedOn IS NOT NULL " +
+            "WHERE (:categories IS NULL OR e.category IN (:categories)) " +
+            "AND (:paid IS NULL OR e.paid IN (:paid)) " +
+            "AND e.state = 'PUBLISHED' " +
             "AND e.eventDate BETWEEN :start AND :end")
     Page<Event> findByNoTextQueryNoOnlyAvailable(List<Category> categories, List<Boolean> paid, LocalDateTime start,
                                                  LocalDateTime end, Pageable page);
 
     @Query("SELECT e " +
             "FROM Event as e " +
-            "WHERE e.category IN (:categories) " +
-            "AND e.paid IN (:paid) " +
-            "AND e.publishedOn IS NOT NULL " +
+            "WHERE (:categories IS NULL OR e.category IN (:categories)) " +
+            "AND (:paid IS NULL OR e.paid IN (:paid)) " +
+            "AND e.state = 'PUBLISHED' " +
             "AND e.confirmedRequests < e.participantLimit " +
             "AND e.eventDate BETWEEN :start AND :end")
     Page<Event> findByNoTextQueryOnlyAvailable(List<Category> categories, List<Boolean> paid, LocalDateTime start,
@@ -63,9 +63,9 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
 
     @Query("SELECT e " +
             "FROM Event as e " +
-            "WHERE e.initiator IN (:users) " +
-            "AND e.state IN (:states) " +
-            "AND e.category IN (:categories) " +
+            "WHERE (:users IS NULL OR e.initiator IN :users) " +
+            "AND (:states IS NULL OR e.state IN :states) " +
+            "AND (:categories IS NULL OR e.category IN :categories) " +
             "AND e.eventDate BETWEEN :start AND :end")
     Page<Event> findByAdminQuery(List<User> users, List<State> states, List<Category> categories,
                                  LocalDateTime start, LocalDateTime end, Pageable page);

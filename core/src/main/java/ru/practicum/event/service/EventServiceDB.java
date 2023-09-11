@@ -58,7 +58,7 @@ public class EventServiceDB implements EventService {
             throw new ValidationException("Невозможно сортировать по полю " + sort);
         }
         if (categories.isEmpty()) {
-            categoriesQuery.addAll(categoryRepository.findAll());
+            categoriesQuery = null;
         } else {
             for (Long id : categories) {
                 categoriesQuery.add(categoryRepository.findById(Math.toIntExact(id))
@@ -66,8 +66,7 @@ public class EventServiceDB implements EventService {
             }
         }
         if (paid == null) {
-            paidQuery.add(true);
-            paidQuery.add(false);
+            paidQuery = null;
         } else {
             paidQuery.add(paid);
         }
@@ -76,12 +75,12 @@ public class EventServiceDB implements EventService {
                 statsClient.postStatistic(request.getRemoteAddr(), request.getRequestURI(), LocalDateTime.now());
                 return EventMapper.toEventDtoList(repository
                         .findByNoTextQueryOnlyAvailable(categoriesQuery, paidQuery, startQuery, endQuery,
-                                PageRequest.of(from, size, Sort.by(sortQuery))).toList());
+                                PageRequest.of(from / size, size, Sort.by(sortQuery))).toList());
             } else {
                 statsClient.postStatistic(request.getRemoteAddr(), request.getRequestURI(), LocalDateTime.now());
                 return EventMapper.toEventDtoList(repository
                         .findByNoTextQueryNoOnlyAvailable(categoriesQuery, paidQuery, startQuery, endQuery,
-                                PageRequest.of(from, size, Sort.by(sortQuery))).toList());
+                                PageRequest.of(from / size, size, Sort.by(sortQuery))).toList());
             }
         } else {
             if (onlyAvailable) {
@@ -89,13 +88,13 @@ public class EventServiceDB implements EventService {
                 text = "%" + text.toLowerCase() + "%";
                 return EventMapper.toEventDtoList(repository
                         .findByAllQueryOnlyAvailable(text, categoriesQuery, paidQuery, startQuery, endQuery,
-                                PageRequest.of(from, size, Sort.by(sortQuery))).toList());
+                                PageRequest.of(from / size, size, Sort.by(sortQuery))).toList());
             } else {
                 statsClient.postStatistic(request.getRemoteAddr(), request.getRequestURI(), LocalDateTime.now());
                 text = "%" + text.toLowerCase() + "%";
                 return EventMapper.toEventDtoList(repository
                         .findByAllQueryNoOnlyAvailable(text, categoriesQuery, paidQuery, startQuery, endQuery,
-                                PageRequest.of(from, size, Sort.by(sortQuery))).toList());
+                                PageRequest.of(from / size, size, Sort.by(sortQuery))).toList());
             }
         }
     }
@@ -120,7 +119,7 @@ public class EventServiceDB implements EventService {
                                          String start, String end, Integer from, Integer size) {
         List<User> usersQuery = new ArrayList<>();
         List<Category> categoriesQuery = new ArrayList<>();
-        List<State> statesQuery = new ArrayList<>();
+        List<State> statesQuery;
         LocalDateTime startQuery;
         LocalDateTime endQuery;
         try {
@@ -138,10 +137,10 @@ public class EventServiceDB implements EventService {
             throw new ValidationException(e.getMessage());
         }
         if (users.isEmpty()) {
-            usersQuery = userRepository.findAll();
+            usersQuery = null;
         } else {
             if (users.size() == 1 && users.get(0) == 0) {
-                usersQuery = userRepository.findAll();
+                usersQuery = null;
             } else {
                 for (Long id : users) {
                     usersQuery.add(userRepository.findById(Math.toIntExact(id))
@@ -150,17 +149,21 @@ public class EventServiceDB implements EventService {
             }
         }
         if (categories.isEmpty()) {
-            categoriesQuery = categoryRepository.findAll();
+            categoriesQuery = null;
         } else {
-            for (Long id : categories) {
-                categoriesQuery.add(categoryRepository.findById(Math.toIntExact(id))
-                        .orElseThrow(() -> new ValidationException("Категории с " + id + " не существует!")));
+            if (categories.size() == 1 && categories.get(0) == 0) {
+                categoriesQuery = null;
+            } else {
+                for (Long id : categories) {
+                    categoriesQuery.add(categoryRepository.findById(Math.toIntExact(id))
+                            .orElseThrow(() -> new ValidationException("Категории с " + id + " не существует!")));
+                }
             }
         }
         if (states.isEmpty()) {
-            statesQuery.add(State.WAIT);
-            statesQuery.add(State.CANCELED);
-            statesQuery.add(State.PUBLISHED);
+            statesQuery = null;
+        } else {
+            statesQuery = new ArrayList<>(states);
         }
         return EventMapper.toEventDtoList(repository.findByAdminQuery(usersQuery, statesQuery, categoriesQuery,
                 startQuery, endQuery, PageRequest.of(from, size)).toList());
@@ -169,37 +172,36 @@ public class EventServiceDB implements EventService {
     @Override
     public EventDto patchAdminEvent(Integer eventId, EventDtoRequest eventDtoRequest) {
         Event oldEvent = repository.findById(eventId).orElseThrow(() -> new ValidationException("Такого события нет!"));
-        if (!eventDtoRequest.getAnnotation().isEmpty() || eventDtoRequest.getAnnotation() != null) {
-            oldEvent.setAnnotation(eventDtoRequest.getAnnotation());
-        }
         if (eventDtoRequest.getCategory() != null) {
             oldEvent.setCategory(categoryRepository.findById(eventDtoRequest.getCategory())
                     .orElseThrow(() -> new ValidationException("Такой категории не существует!")));
         }
-        if (!eventDtoRequest.getDescription().isEmpty() || eventDtoRequest.getDescription() != null) {
-            oldEvent.setDescription(eventDtoRequest.getDescription());
-        }
         if (eventDtoRequest.getEventDate() != null) {
-            if (eventDtoRequest.getEventDate().isBefore(oldEvent.getEventDate())) {
+            if (eventDtoRequest.getEventDate().isBefore(oldEvent.getEventDate()) ||
+                    eventDtoRequest.getEventDate().isBefore(LocalDateTime.now())) {
                 throw new ValidationException("Невозможно установить такую дату");
             }
             oldEvent.setEventDate(eventDtoRequest.getEventDate());
         }
-        if (eventDtoRequest.getDescription() == null || eventDtoRequest.getDescription().trim().isEmpty()
-                || eventDtoRequest.getDescription().length() < 20) {
-            throw new ValidationException("Описание не должно быть пустым или быть меньше 20 символов!");
+        if (eventDtoRequest.getDescription() != null) {
+            if (eventDtoRequest.getDescription().trim().isEmpty()
+                    || eventDtoRequest.getDescription().length() < 20
+                    || eventDtoRequest.getDescription().length() < 7000) {
+                throw new ValidationException("Описание не должно быть пустым и быть >20 и <7000 символов!");
+            } else {
+                oldEvent.setDescription(eventDtoRequest.getDescription());
+            }
         }
-        if (eventDtoRequest.getAnnotation() == null || eventDtoRequest.getAnnotation().trim().isEmpty()
-                || eventDtoRequest.getAnnotation().length() < 20 || eventDtoRequest.getAnnotation().length() > 2000) {
-            throw new ValidationException("Аннотация не должна быть: \n" +
-                    "- пустой \n" +
-                    "- меньше 20 символов или больше 2000");
-        }
-        if (eventDtoRequest.getTitle().length() < 3 || eventDtoRequest.getTitle().length() > 120) {
-            throw new ValidationException("Не валидная длина заголовка!");
-        }
-        if (eventDtoRequest.getEventDate().isBefore(LocalDateTime.now())) {
-            throw new ValidationException("Невозможно установить такое время!");
+        if (eventDtoRequest.getAnnotation() != null) {
+            if (eventDtoRequest.getAnnotation().trim().isEmpty()
+                    || eventDtoRequest.getAnnotation().length() < 20
+                    || eventDtoRequest.getAnnotation().length() > 2000) {
+                throw new ValidationException("Аннотация не должна быть: \n" +
+                        "- пустой \n" +
+                        "- меньше 20 символов или больше 2000");
+            } else {
+                oldEvent.setAnnotation(eventDtoRequest.getAnnotation());
+            }
         }
         if (eventDtoRequest.getLocation() != null) {
             oldEvent.setLat(eventDtoRequest.getLocation().getLat());
@@ -208,7 +210,10 @@ public class EventServiceDB implements EventService {
         if (eventDtoRequest.getParticipantLimit() != null) {
             oldEvent.setParticipantLimit(eventDtoRequest.getParticipantLimit());
         }
-        if (eventDtoRequest.getTitle() != null && !eventDtoRequest.getTitle().isEmpty()) {
+        if (eventDtoRequest.getTitle() != null && !eventDtoRequest.getTitle().trim().isEmpty()) {
+            if (eventDtoRequest.getTitle().length() < 3 || eventDtoRequest.getTitle().length() > 120) {
+                throw new ValidationException("Не валидная длина заголовка!");
+            }
             oldEvent.setTitle(eventDtoRequest.getTitle());
         }
         if (eventDtoRequest.getPaid() != null) {

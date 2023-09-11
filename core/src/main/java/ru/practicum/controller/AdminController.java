@@ -78,13 +78,13 @@ public class AdminController {
 
     @GetMapping("/events")
     public List<EventDto> getEvents(@RequestParam(value = "users", defaultValue = "") List<Long> users,
-                                    @RequestParam(value = "state", defaultValue = "") List<State> state,
+                                    @RequestParam(value = "states", defaultValue = "") List<State> states,
                                     @RequestParam(value = "categories", defaultValue = "") List<Long> categories,
                                     @RequestParam(value = "rangeStart", required = false) String rangeStart,
                                     @RequestParam(value = "rangeEnd", required = false) String rangeEnd,
                                     @RequestParam(value = "from", defaultValue = "0") Integer from,
                                     @RequestParam(value = "size", defaultValue = "10") Integer size) {
-        return eventService.getAdminEvents(users, state, categories, rangeStart, rangeEnd, from, size);
+        return eventService.getAdminEvents(users, states, categories, rangeStart, rangeEnd, from, size);
     }
 
     @PostMapping("/compilations")

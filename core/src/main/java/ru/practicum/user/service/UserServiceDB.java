@@ -96,8 +96,8 @@ public class UserServiceDB implements UserService {
         }
         if (event.getAnnotation() == null || event.getAnnotation().trim().isEmpty()
                 || event.getAnnotation().length() < 20 || event.getAnnotation().length() > 2000) {
-            throw new ValidationException("Аннотация не должна быть: \n" +
-                    "- пустой \n" +
+            throw new ValidationException("Аннотация не должна быть: " + "\n" +
+                    "- пустой " + "\n" +
                     "- меньше 20 символов или больше 2000");
         }
         if (event.getTitle().length() < 3 || event.getTitle().length() > 120) {
@@ -119,6 +119,8 @@ public class UserServiceDB implements UserService {
         newEvent.setCategory(categoryRepository.findById(newEvent.getCategory().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Такой категории не существует!")));
         newEvent.setState(State.WAIT);
+        newEvent.setViews(0);
+        newEvent.setConfirmedRequests(0);
         return EventMapper.toEventDto(eventRepository.save(newEvent));
     }
 
@@ -151,25 +153,15 @@ public class UserServiceDB implements UserService {
         if (eventRepository.findByInitiatorAndId(repository.findById(userId).get(), eventId).isEmpty()) {
             throw new ConflictException("Данный пользователь не создатель события");
         }
-        if (event.getDescription() == null || event.getDescription().trim().isEmpty()
-                || event.getDescription().length() < 20) {
-            throw new ValidationException("Описание не должно быть пустым или быть меньше 20 символов!");
-        }
-        if (event.getAnnotation() == null || event.getAnnotation().trim().isEmpty()
-                || event.getAnnotation().length() < 20 || event.getAnnotation().length() > 2000) {
-            throw new ValidationException("Аннотация не должна быть: \n" +
-                    "- пустой \n" +
-                    "- меньше 20 символов или больше 2000");
-        }
-        if (event.getTitle().length() < 3 || event.getTitle().length() > 120) {
-            throw new ValidationException("Не валидная длина заголовка!");
-        }
-        if (event.getEventDate().isBefore(LocalDateTime.now())) {
-            throw new ValidationException("Невозможно установить такое время!");
-        }
         Event newEvent = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("Такого события нет"));
         if (event.getAnnotation() != null) {
+            if (event.getAnnotation() == null || event.getAnnotation().trim().isEmpty()
+                    || event.getAnnotation().length() < 20 || event.getAnnotation().length() > 2000) {
+                throw new ValidationException("Аннотация не должна быть: \n" +
+                        "- пустой \n" +
+                        "- меньше 20 символов или больше 2000");
+            }
             newEvent.setAnnotation(event.getAnnotation());
         }
         if (event.getCategory() != null) {
@@ -177,10 +169,15 @@ public class UserServiceDB implements UserService {
                     .orElseThrow(() -> new ResourceNotFoundException("Такой категории не существует")));
         }
         if (event.getDescription() != null) {
+            if (event.getDescription() == null || event.getDescription().trim().isEmpty()
+                    || event.getDescription().length() < 20) {
+                throw new ValidationException("Описание не должно быть пустым или быть меньше 20 символов!");
+            }
             newEvent.setDescription(event.getDescription());
         }
         if (event.getEventDate() != null) {
-            if (event.getEventDate().isBefore(newEvent.getEventDate())) {
+            if (event.getEventDate().isBefore(newEvent.getEventDate()) ||
+                    event.getEventDate().isBefore(LocalDateTime.now())) {
                 throw new ValidationException("Невозможно установить такую дату");
             }
             newEvent.setEventDate(event.getEventDate());
@@ -199,11 +196,14 @@ public class UserServiceDB implements UserService {
             newEvent.setRequestModeration(event.getRequestModeration());
         }
         if (event.getTitle() != null) {
+            if (event.getTitle().length() < 3 || event.getTitle().length() > 120) {
+                throw new ValidationException("Не валидная длина заголовка!");
+            }
             newEvent.setTitle(event.getTitle());
         }
         if (event.getStateAction() != null) {
             if (event.getStateAction().equals("SEND_TO_REVIEW")) {
-                if (!newEvent.getState().equals(State.PENDING)) {
+                if (newEvent.getState().equals(State.PUBLISHED)) { //!newEvent.getState().equals(State.WAIT)) {
                     throw new ConflictException("Событие уже опубликовано или отменено!");
                 }
                 newEvent.setState(State.PENDING);

@@ -26,6 +26,7 @@ public class EventMapper {
         event.setParticipantLimit(eventDto.getParticipantLimit());
         event.setTitle(eventDto.getTitle());
         event.setInitiator(user);
+        event.setRequestModeration(eventDto.getRequestModeration());
         event.setCreatedOn(LocalDateTime.now());
         return event;
     }
