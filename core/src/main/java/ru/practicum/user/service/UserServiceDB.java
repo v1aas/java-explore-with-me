@@ -245,6 +245,7 @@ public class UserServiceDB implements UserService {
         if (!(event.getConfirmedRequests() < event.getParticipantLimit())) {
             throw new ConflictException("Количество заявок максимально!");
         }
+        User requester = null;
         for (Integer id : request.getRequestIds()) {
             UserRequest userRequest = requestRepository.findById(id)
                     .orElseThrow(() -> new ResourceNotFoundException("Запроса с id " + id + "нет!"));
@@ -252,13 +253,16 @@ public class UserServiceDB implements UserService {
                 throw new ConflictException("Заявка уже принята или отклонена!");
             }
             userRequest.setStatus(request.getStatus());
+            requester = userRequest.getRequester();
             requestRepository.save(userRequest);
             event.setConfirmedRequests(event.getConfirmedRequests() + 1);
         }
         eventRepository.save(event);
         return new AllUserRequestResponse(
-                UserRequestMapper.toRequestDtoList(requestRepository.findAllByStatus(Status.CONFIRMED)),
-                UserRequestMapper.toRequestDtoList(requestRepository.findAllByStatus(Status.REJECTED)));
+                UserRequestMapper.toRequestDtoList(requestRepository.findAllByStatusAndRequester(Status.CONFIRMED,
+                        requester)),
+                UserRequestMapper.toRequestDtoList(requestRepository.findAllByStatusAndRequester(Status.REJECTED,
+                        requester)));
     }
 
     @Override
@@ -294,7 +298,6 @@ public class UserServiceDB implements UserService {
             userRequest.setRequester(repository.findById(userId)
                     .orElseThrow(() -> new ResourceNotFoundException("Такого пользователя не существует!")));
             userRequest.setStatus(Status.PENDING);
-            event.setConfirmedRequests(event.getConfirmedRequests() + 1);
             eventRepository.save(event);
         }
         return UserRequestMapper.toRequestDto(requestRepository.save(userRequest));

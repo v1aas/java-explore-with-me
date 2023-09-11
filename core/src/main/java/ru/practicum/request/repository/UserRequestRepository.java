@@ -14,5 +14,5 @@ public interface UserRequestRepository extends JpaRepository<UserRequest, Intege
 
     List<UserRequest> findAllByEvent(Event event);
 
-    List<UserRequest> findAllByStatus(Status status);
+    List<UserRequest> findAllByStatusAndRequester(Status status, User requester);
 }
