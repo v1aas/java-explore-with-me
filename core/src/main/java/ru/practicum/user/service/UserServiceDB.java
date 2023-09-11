@@ -211,7 +211,7 @@ public class UserServiceDB implements UserService {
                 if (newEvent.getState().equals(State.PUBLISHED)) {
                     throw new ConflictException("Событие уже опубликовано или отменено!");
                 }
-                newEvent.setState(State.PUBLISHED);
+                newEvent.setState(State.PENDING);
             } else if (event.getStateAction().equals("CANCEL_REVIEW")) {
                 if (newEvent.getState().equals(State.PUBLISHED)) {
                     throw new ConflictException("Событие уже нельзя отклонить!");
@@ -277,9 +277,6 @@ public class UserServiceDB implements UserService {
         if (event.getPublishedOn() == null) {
             throw new ConflictException("Нельзя участвовать в неопубликованном событии!");
         }
-        if (!(event.getConfirmedRequests() < event.getParticipantLimit())) {
-            throw new ConflictException("Достигнут лимит запросов на участие!");
-        }
         if (event.getParticipantLimit() == 0) {
             userRequest.setCreated(LocalDateTime.now());
             userRequest.setEvent(event);
@@ -289,11 +286,16 @@ public class UserServiceDB implements UserService {
             event.setConfirmedRequests(event.getConfirmedRequests() + 1);
             eventRepository.save(event);
         } else {
+            if (!(event.getConfirmedRequests() < event.getParticipantLimit())) {
+                throw new ConflictException("Достигнут лимит запросов на участие!");
+            }
             userRequest.setCreated(LocalDateTime.now());
             userRequest.setEvent(event);
             userRequest.setRequester(repository.findById(userId)
                     .orElseThrow(() -> new ResourceNotFoundException("Такого пользователя не существует!")));
             userRequest.setStatus(Status.PENDING);
+            event.setConfirmedRequests(event.getConfirmedRequests() + 1);
+            eventRepository.save(event);
         }
         return UserRequestMapper.toRequestDto(requestRepository.save(userRequest));
     }
