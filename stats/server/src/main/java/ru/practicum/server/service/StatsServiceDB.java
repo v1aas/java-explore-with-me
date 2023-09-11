@@ -4,11 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.dto.GeneralStatsDto;
 import ru.practicum.dto.StatisticDto;
+import ru.practicum.server.exception.ValidationException;
+import ru.practicum.server.mapper.StatsMapper;
 import ru.practicum.server.model.Statistic;
 import ru.practicum.server.repository.StatsRepository;
-import ru.practicum.server.mapper.StatsMapper;
 
-import javax.validation.ValidationException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;

@@ -106,11 +106,16 @@ public class EventServiceDB implements EventService {
             throw new ResourceNotFoundException("Такого события нет!");
         }
         statsClient.postStatistic(request.getRemoteAddr(), request.getRequestURI(), LocalDateTime.now());
-        event.setViews(Math.toIntExact(statsClient.getStatistic(
-                "2000-09-01 00:00:00",
-                "2032-09-30 00:00:00",
-                Collections.singletonList(request.getRequestURI()),
-                true).get(0).getHits()));
+        try {
+            event.setViews(Math.toIntExact(statsClient.getStatistic(
+                    "2000-09-01 00:00:00",
+                    "2032-09-30 00:00:00",
+                    Collections.singletonList(request.getRequestURI()),
+                    true).get(0).getHits()));
+        } catch (RuntimeException e) {
+            throw new ValidationException("Ошибка:" + e.getMessage());
+        }
+
         return EventMapper.toEventDto(repository.save(event));
     }
 

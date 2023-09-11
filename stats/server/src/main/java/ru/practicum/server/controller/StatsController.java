@@ -2,6 +2,7 @@ package ru.practicum.server.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.GeneralStatsDto;
 import ru.practicum.dto.StatisticDto;
@@ -17,6 +18,7 @@ public class StatsController {
     private final StatsService service;
 
     @PostMapping("/hit")
+    @ResponseStatus(HttpStatus.CREATED)
     public StatisticDto postStatistic(@RequestBody StatisticDto statisticDto) {
         log.info("Post new statistic");
         return service.saveRequest(statisticDto);
