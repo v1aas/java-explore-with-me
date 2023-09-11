@@ -118,7 +118,7 @@ public class UserServiceDB implements UserService {
         Event newEvent = EventMapper.toEvent(event, repository.findById(userId).get());
         newEvent.setCategory(categoryRepository.findById(newEvent.getCategory().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Такой категории не существует!")));
-        newEvent.setState(State.WAIT);
+        newEvent.setState(State.PENDING);
         newEvent.setViews(0);
         newEvent.setConfirmedRequests(0);
         return EventMapper.toEventDto(eventRepository.save(newEvent));
@@ -155,7 +155,10 @@ public class UserServiceDB implements UserService {
         }
         Event newEvent = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("Такого события нет"));
-        EventDto eventResponse = null;
+        if (newEvent.getState().equals(State.PUBLISHED)) {
+            throw new ConflictException("Событие уже опубликовано!");
+        }
+        EventDto eventResponse;
         if (event.getAnnotation() != null) {
             if (event.getAnnotation() == null || event.getAnnotation().trim().isEmpty()
                     || event.getAnnotation().length() < 20 || event.getAnnotation().length() > 2000) {
@@ -205,22 +208,18 @@ public class UserServiceDB implements UserService {
         }
         if (event.getStateAction() != null) {
             if (event.getStateAction().equals("SEND_TO_REVIEW")) {
-                if (newEvent.getState().equals(State.PUBLISHED)) { //!newEvent.getState().equals(State.WAIT)) {
+                if (newEvent.getState().equals(State.PUBLISHED)) {
                     throw new ConflictException("Событие уже опубликовано или отменено!");
                 }
-                newEvent.setState(State.PENDING);
-                eventResponse = EventMapper.toEventDto(eventRepository.save(newEvent));
                 newEvent.setState(State.PUBLISHED);
             } else if (event.getStateAction().equals("CANCEL_REVIEW")) {
                 if (newEvent.getState().equals(State.PUBLISHED)) {
                     throw new ConflictException("Событие уже нельзя отклонить!");
                 }
-                newEvent.setState(State.PENDING);
-                eventResponse = EventMapper.toEventDto(eventRepository.save(newEvent));
                 newEvent.setState(State.CANCELED);
             }
         }
-        return eventResponse;
+        return eventResponse = EventMapper.toEventDto(eventRepository.save(newEvent));
     }
 
     @Override
@@ -243,7 +242,7 @@ public class UserServiceDB implements UserService {
         if (!event.getInitiator().getId().equals(userId)) {
             throw new ValidationException("Изменять запросы может только его создатель!");
         }
-        if (event.getConfirmedRequests() < event.getParticipantLimit()) {
+        if (!(event.getConfirmedRequests() < event.getParticipantLimit())) {
             throw new ConflictException("Количество заявок максимально!");
         }
         for (Integer id : request.getRequestIds()) {
@@ -259,7 +258,7 @@ public class UserServiceDB implements UserService {
         eventRepository.save(event);
         return new AllUserRequestResponse(
                 UserRequestMapper.toRequestDtoList(requestRepository.findAllByStatus(Status.CONFIRMED)),
-                UserRequestMapper.toRequestDtoList(requestRepository.findAllByStatus(Status.CANCELLED)));
+                UserRequestMapper.toRequestDtoList(requestRepository.findAllByStatus(Status.REJECTED)));
     }
 
     @Override
@@ -278,7 +277,7 @@ public class UserServiceDB implements UserService {
         if (event.getPublishedOn() == null) {
             throw new ConflictException("Нельзя участвовать в неопубликованном событии!");
         }
-        if (event.getConfirmedRequests() < event.getParticipantLimit()) {
+        if (!(event.getConfirmedRequests() < event.getParticipantLimit())) {
             throw new ConflictException("Достигнут лимит запросов на участие!");
         }
         if (event.getParticipantLimit() == 0) {
@@ -315,7 +314,7 @@ public class UserServiceDB implements UserService {
         }
         UserRequest userRequest = requestRepository
                 .findById(requestId).orElseThrow(() -> new ResourceNotFoundException("Такого события нет!"));
-        userRequest.setStatus(Status.CANCELLED);
+        userRequest.setStatus(Status.CANCELED);
         return UserRequestMapper.toRequestDto(userRequest);
     }
 
