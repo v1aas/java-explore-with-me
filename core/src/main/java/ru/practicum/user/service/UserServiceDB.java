@@ -289,8 +289,21 @@ public class UserServiceDB implements UserService {
             userRequest.setStatus(Status.CONFIRMED);
             event.setConfirmedRequests(event.getConfirmedRequests() + 1);
             eventRepository.save(event);
+        } else if (!event.isRequestModeration()) {
+            if (!(event.getConfirmedRequests() < event.getParticipantLimit()) ||
+                    event.getParticipantLimit().equals(event.getConfirmedRequests())) {
+                throw new ConflictException("Достигнут лимит запросов на участие!");
+            }
+            userRequest.setCreated(LocalDateTime.now());
+            userRequest.setEvent(event);
+            userRequest.setRequester(repository.findById(userId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Такого пользователя не существует!")));
+            userRequest.setStatus(Status.CONFIRMED);
+            event.setConfirmedRequests(event.getConfirmedRequests() + 1);
+            eventRepository.save(event);
         } else {
-            if (!(event.getConfirmedRequests() < event.getParticipantLimit())) {
+            if (!(event.getConfirmedRequests() < event.getParticipantLimit()) ||
+                    event.getParticipantLimit().equals(event.getConfirmedRequests())) {
                 throw new ConflictException("Достигнут лимит запросов на участие!");
             }
             userRequest.setCreated(LocalDateTime.now());
