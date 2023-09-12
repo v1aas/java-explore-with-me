@@ -30,12 +30,17 @@ import java.util.Objects;
 @Service
 @RequiredArgsConstructor
 public class EventServiceDB implements EventService {
-
+    public static final int MAX_LENGTH_DESCRIPTION = 7000;
+    public static final int MIN_LENGTH_DESCRIPTION = 20;
+    public static final int MAX_LENGTH_ANNOTATION = 2000;
+    public static final int MIN_LENGTH_ANNOTATION = 20;
+    public static final int MAX_LENGTH_TITLE = 120;
+    public static final int MIN_LENGTH_TITLE = 3;
     private final EventRepository repository;
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
     private final StatsClient statsClient;
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override
     public List<EventDto> getEvents(String text, List<Long> categories, Boolean paid, LocalDateTime start,
@@ -190,8 +195,8 @@ public class EventServiceDB implements EventService {
         }
         if (eventDtoRequest.getDescription() != null) {
             if (eventDtoRequest.getDescription().trim().isEmpty()
-                    || eventDtoRequest.getDescription().length() < 20
-                    || eventDtoRequest.getDescription().length() > 7000) {
+                    || eventDtoRequest.getDescription().length() < MIN_LENGTH_DESCRIPTION
+                    || eventDtoRequest.getDescription().length() > MAX_LENGTH_DESCRIPTION) {
                 throw new ValidationException("Описание не должно быть пустым и быть >20 и <7000 символов!");
             } else {
                 oldEvent.setDescription(eventDtoRequest.getDescription());
@@ -199,8 +204,8 @@ public class EventServiceDB implements EventService {
         }
         if (eventDtoRequest.getAnnotation() != null) {
             if (eventDtoRequest.getAnnotation().trim().isEmpty()
-                    || eventDtoRequest.getAnnotation().length() < 20
-                    || eventDtoRequest.getAnnotation().length() > 2000) {
+                    || eventDtoRequest.getAnnotation().length() < MIN_LENGTH_ANNOTATION
+                    || eventDtoRequest.getAnnotation().length() > MAX_LENGTH_ANNOTATION) {
                 throw new ValidationException("Аннотация не должна быть: \n" +
                         "- пустой \n" +
                         "- меньше 20 символов или больше 2000");
@@ -216,7 +221,8 @@ public class EventServiceDB implements EventService {
             oldEvent.setParticipantLimit(eventDtoRequest.getParticipantLimit());
         }
         if (eventDtoRequest.getTitle() != null && !eventDtoRequest.getTitle().trim().isEmpty()) {
-            if (eventDtoRequest.getTitle().length() < 3 || eventDtoRequest.getTitle().length() > 120) {
+            if (eventDtoRequest.getTitle().length() < MIN_LENGTH_TITLE ||
+                    eventDtoRequest.getTitle().length() > MAX_LENGTH_TITLE) {
                 throw new ValidationException("Не валидная длина заголовка!");
             }
             oldEvent.setTitle(eventDtoRequest.getTitle());

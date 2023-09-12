@@ -27,6 +27,12 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class UserServiceDB implements UserService {
+    public static final int MAX_LENGTH_DESCRIPTION = 7000;
+    public static final int MIN_LENGTH_DESCRIPTION = 20;
+    public static final int MAX_LENGTH_ANNOTATION = 2000;
+    public static final int MIN_LENGTH_ANNOTATION = 20;
+    public static final int MAX_LENGTH_TITLE = 120;
+    public static final int MIN_LENGTH_TITLE = 3;
     private final UserRepository repository;
 
     private final EventRepository eventRepository;
@@ -91,16 +97,18 @@ public class UserServiceDB implements UserService {
             throw new ResourceNotFoundException("Такого пользователя не существует");
         }
         if (event.getDescription() == null || event.getDescription().trim().isEmpty()
-                || event.getDescription().length() < 20) {
+                || event.getDescription().length() < MIN_LENGTH_DESCRIPTION
+                || event.getDescription().length() > MAX_LENGTH_DESCRIPTION) {
             throw new ValidationException("Описание не должно быть пустым или быть меньше 20 символов!");
         }
         if (event.getAnnotation() == null || event.getAnnotation().trim().isEmpty()
-                || event.getAnnotation().length() < 20 || event.getAnnotation().length() > 2000) {
+                || event.getAnnotation().length() < MIN_LENGTH_ANNOTATION
+                || event.getAnnotation().length() > MAX_LENGTH_ANNOTATION) {
             throw new ValidationException("Аннотация не должна быть: " + "\n" +
                     "- пустой " + "\n" +
                     "- меньше 20 символов или больше 2000");
         }
-        if (event.getTitle().length() < 3 || event.getTitle().length() > 120) {
+        if (event.getTitle().length() < MIN_LENGTH_TITLE || event.getTitle().length() > MAX_LENGTH_TITLE) {
             throw new ValidationException("Не валидная длина заголовка!");
         }
         if (event.getEventDate().isBefore(LocalDateTime.now())) {
@@ -161,7 +169,8 @@ public class UserServiceDB implements UserService {
         EventDto eventResponse;
         if (event.getAnnotation() != null) {
             if (event.getAnnotation() == null || event.getAnnotation().trim().isEmpty()
-                    || event.getAnnotation().length() < 20 || event.getAnnotation().length() > 2000) {
+                    || event.getAnnotation().length() < MIN_LENGTH_ANNOTATION
+                    || event.getAnnotation().length() > MAX_LENGTH_ANNOTATION) {
                 throw new ValidationException("Аннотация не должна быть: \n" +
                         "- пустой \n" +
                         "- меньше 20 символов или больше 2000");
@@ -174,7 +183,8 @@ public class UserServiceDB implements UserService {
         }
         if (event.getDescription() != null) {
             if (event.getDescription() == null || event.getDescription().trim().isEmpty()
-                    || event.getDescription().length() < 20 || event.getDescription().length() > 7000) {
+                    || event.getDescription().length() < MIN_LENGTH_DESCRIPTION
+                    || event.getDescription().length() > MAX_LENGTH_DESCRIPTION) {
                 throw new ValidationException("Описание не должно быть пустым или быть меньше 20 или " +
                         "быть больше 7000 символов!");
             }
@@ -201,7 +211,7 @@ public class UserServiceDB implements UserService {
             newEvent.setRequestModeration(event.getRequestModeration());
         }
         if (event.getTitle() != null) {
-            if (event.getTitle().length() < 3 || event.getTitle().length() > 120) {
+            if (event.getTitle().length() < MIN_LENGTH_TITLE || event.getTitle().length() > MAX_LENGTH_TITLE) {
                 throw new ValidationException("Не валидная длина заголовка!");
             }
             newEvent.setTitle(event.getTitle());
@@ -354,5 +364,4 @@ public class UserServiceDB implements UserService {
         }
         return true;
     }
-
 }
