@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.category.model.CategoryDto;
 import ru.practicum.category.service.CategoryService;
+import ru.practicum.comment.model.CommentaryDto;
 import ru.practicum.compilation.model.CompilationDto;
 import ru.practicum.compilation.service.CompilationService;
 import ru.practicum.event.model.EventDto;
@@ -88,6 +89,28 @@ public class PublicController {
                                                             @RequestBody AllUserRequestFormat format) {
         log.info("Change status UserRequest: {}", format);
         return userService.changeStatusRequestForEvent(userId, eventId, format);
+    }
+
+    @PostMapping("/users/{userId}/events/{eventId}/comments")
+    @ResponseStatus(HttpStatus.CREATED)
+    public CommentaryDto postComment(@PathVariable int userId, @PathVariable int eventId,
+                                     @RequestBody CommentaryDto commentaryDto) {
+        log.info("Post comment {} for user {}", commentaryDto, userId);
+        return userService.createComment(userId, eventId, commentaryDto);
+    }
+
+    @PatchMapping("/users/{userId}/comments/{commentId}")
+    public CommentaryDto patchComment(@PathVariable int userId, @PathVariable int commentId,
+                                      @RequestBody CommentaryDto commentaryDto) {
+        log.info("Patch comment {} for user {}", commentaryDto, userId);
+        return userService.updateComment(userId, commentId, commentaryDto);
+    }
+
+    @DeleteMapping("/users/{userId}/comments/{commentId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteComment(@PathVariable int userId, @PathVariable int commentId) {
+        log.info("Delete comment {} for user {}", commentId, userId);
+        userService.deleteComment(userId, commentId);
     }
 
     @GetMapping("/categories")

@@ -1854,8 +1854,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Response status code is 200\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
+									"pm.test(\"Response status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
 									"});\r",
 									"\r",
 									"// Проверка структуры ответа\r",
@@ -1874,7 +1874,7 @@
 									"    pm.expect(jsonResponse.id).to.eql(1);\r",
 									"    pm.expect(jsonResponse.event).to.eql(1);\r",
 									"    pm.expect(jsonResponse.requester).to.eql(3);\r",
-									"    pm.expect(jsonResponse.status).to.eql(\"PENDING\");\r",
+									"    pm.expect(jsonResponse.status).to.eql(\"CONFIRMED\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -1996,8 +1996,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Response status code is 200\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
+									"pm.test(\"Response status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
 									"});\r",
 									"\r",
 									"// Проверка структуры ответа\r",
@@ -2016,7 +2016,7 @@
 									"    pm.expect(jsonResponse.id).to.eql(2);\r",
 									"    pm.expect(jsonResponse.event).to.eql(1);\r",
 									"    pm.expect(jsonResponse.requester).to.eql(5);\r",
-									"    pm.expect(jsonResponse.status).to.eql(\"PENDING\");\r",
+									"    pm.expect(jsonResponse.status).to.eql(\"CONFIRMED\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -2093,7 +2093,7 @@
 									"    pm.expect(firstItem.id).to.eql(1);\r",
 									"    pm.expect(firstItem.event).to.eql(1);\r",
 									"    pm.expect(firstItem.requester).to.eql(3);\r",
-									"    pm.expect(firstItem.status).to.eql(\"PENDING\");\r",
+									"    pm.expect(firstItem.status).to.eql(\"CONFIRMED\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -2170,7 +2170,7 @@
 									"    pm.expect(firstItem.id).to.eql(1);\r",
 									"    pm.expect(firstItem.event).to.eql(1);\r",
 									"    pm.expect(firstItem.requester).to.eql(3);\r",
-									"    pm.expect(firstItem.status).to.eql(\"PENDING\");\r",
+									"    pm.expect(firstItem.status).to.eql(\"CONFIRMED\");\r",
 									"});\r",
 									"\r",
 									"// Проверка значений некоторых полей второго элемента массива\r",
@@ -2180,7 +2180,7 @@
 									"    pm.expect(secondItem.id).to.eql(2);\r",
 									"    pm.expect(secondItem.event).to.eql(1);\r",
 									"    pm.expect(secondItem.requester).to.eql(5);\r",
-									"    pm.expect(secondItem.status).to.eql(\"PENDING\");\r",
+									"    pm.expect(secondItem.status).to.eql(\"CONFIRMED\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -2231,42 +2231,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Response status code is 200\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});\r",
-									"\r",
-									"// Проверка структуры ответа\r",
-									"let jsonResponse = pm.response.json();\r",
-									"\r",
-									"pm.test(\"Response has 'confirmedRequests' and 'rejectedRequests' arrays\", function () {\r",
-									"    pm.expect(jsonResponse).to.have.property(\"confirmedRequests\").that.is.an(\"array\");\r",
-									"    pm.expect(jsonResponse).to.have.property(\"rejectedRequests\").that.is.an(\"array\");\r",
-									"});\r",
-									"\r",
-									"// Проверка структуры каждого элемента в 'confirmedRequests'\r",
-									"jsonResponse.confirmedRequests.forEach((item, index) => {\r",
-									"    pm.test(`Item #${index + 1} in 'confirmedRequests' has all required fields`, function () {\r",
-									"        pm.expect(item).to.have.property(\"id\");\r",
-									"        pm.expect(item).to.have.property(\"created\");\r",
-									"        pm.expect(item).to.have.property(\"event\");\r",
-									"        pm.expect(item).to.have.property(\"requester\");\r",
-									"        pm.expect(item).to.have.property(\"status\");\r",
-									"    });\r",
-									"});\r",
-									"\r",
-									"// Проверка значений некоторых полей первого элемента в 'confirmedRequests'\r",
-									"let firstConfirmedRequest = jsonResponse.confirmedRequests[0];\r",
-									"\r",
-									"pm.test(\"Check specific field values of the first item in 'confirmedRequests'\", function () {\r",
-									"    pm.expect(firstConfirmedRequest.id).to.eql(1);\r",
-									"    pm.expect(firstConfirmedRequest.event).to.eql(1);\r",
-									"    pm.expect(firstConfirmedRequest.requester).to.eql(3);\r",
-									"    pm.expect(firstConfirmedRequest.status).to.eql(\"CONFIRMED\");\r",
-									"});\r",
-									"\r",
-									"// Проверка, что 'rejectedRequests' пуст\r",
-									"pm.test(\"'rejectedRequests' is empty\", function () {\r",
-									"    pm.expect(jsonResponse.rejectedRequests).to.be.empty;\r",
+									"pm.test(\"Response status code is 409\", function () {\r",
+									"    pm.response.to.have.status(409);\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -2314,58 +2280,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Response status code is 200\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});\r",
-									"\r",
-									"// Проверка структуры ответа\r",
-									"let jsonResponse = pm.response.json();\r",
-									"\r",
-									"pm.test(\"Response has 'confirmedRequests' and 'rejectedRequests' arrays\", function () {\r",
-									"    pm.expect(jsonResponse).to.have.property(\"confirmedRequests\").that.is.an(\"array\");\r",
-									"    pm.expect(jsonResponse).to.have.property(\"rejectedRequests\").that.is.an(\"array\");\r",
-									"});\r",
-									"\r",
-									"// Проверка структуры каждого элемента в 'confirmedRequests'\r",
-									"jsonResponse.confirmedRequests.forEach((item, index) => {\r",
-									"    pm.test(`Item #${index + 1} in 'confirmedRequests' has all required fields`, function () {\r",
-									"        pm.expect(item).to.have.property(\"id\");\r",
-									"        pm.expect(item).to.have.property(\"created\");\r",
-									"        pm.expect(item).to.have.property(\"event\");\r",
-									"        pm.expect(item).to.have.property(\"requester\");\r",
-									"        pm.expect(item).to.have.property(\"status\");\r",
-									"    });\r",
-									"});\r",
-									"\r",
-									"// Проверка структуры каждого элемента в 'rejectedRequests'\r",
-									"jsonResponse.rejectedRequests.forEach((item, index) => {\r",
-									"    pm.test(`Item #${index + 1} in 'rejectedRequests' has all required fields`, function () {\r",
-									"        pm.expect(item).to.have.property(\"id\");\r",
-									"        pm.expect(item).to.have.property(\"created\");\r",
-									"        pm.expect(item).to.have.property(\"event\");\r",
-									"        pm.expect(item).to.have.property(\"requester\");\r",
-									"        pm.expect(item).to.have.property(\"status\");\r",
-									"    });\r",
-									"});\r",
-									"\r",
-									"// Проверка значений некоторых полей первого элемента в 'confirmedRequests'\r",
-									"let firstConfirmedRequest = jsonResponse.confirmedRequests[0];\r",
-									"\r",
-									"pm.test(\"Check specific field values of the first item in 'confirmedRequests'\", function () {\r",
-									"    pm.expect(firstConfirmedRequest.id).to.eql(1);\r",
-									"    pm.expect(firstConfirmedRequest.event).to.eql(1);\r",
-									"    pm.expect(firstConfirmedRequest.requester).to.eql(3);\r",
-									"    pm.expect(firstConfirmedRequest.status).to.eql(\"CONFIRMED\");\r",
-									"});\r",
-									"\r",
-									"// Проверка значений некоторых полей первого элемента в 'rejectedRequests'\r",
-									"let firstRejectedRequest = jsonResponse.rejectedRequests[0];\r",
-									"\r",
-									"pm.test(\"Check specific field values of the first item in 'rejectedRequests'\", function () {\r",
-									"    pm.expect(firstRejectedRequest.id).to.eql(2);\r",
-									"    pm.expect(firstRejectedRequest.event).to.eql(1);\r",
-									"    pm.expect(firstRejectedRequest.requester).to.eql(5);\r",
-									"    pm.expect(firstRejectedRequest.status).to.eql(\"CANCELLED\");\r",
+									"pm.test(\"Response status code is 409\", function () {\r",
+									"    pm.response.to.have.status(409);\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -2418,8 +2334,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Response status code is 200\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
+									"pm.test(\"Response status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
 									"});\r",
 									"\r",
 									"// Проверка структуры ответа\r",
@@ -2575,8 +2491,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Response status code is 200\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
+									"pm.test(\"Response status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
 									"});\r",
 									"let jsonResponse = pm.response.json();\r",
 									"\r",
@@ -2651,8 +2567,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Response status code is 200\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
+									"pm.test(\"Response status code is 204\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -2712,7 +2628,7 @@
 									"    pm.expect(firstEventDetails.annotation).to.eql(\"Сплав на саппах похож на полет.\");\r",
 									"    pm.expect(firstEventDetails.category.id).to.eql(1);\r",
 									"    pm.expect(firstEventDetails.category.name).to.eql(\"Активный отдых\");\r",
-									"    pm.expect(firstEventDetails.confirmedRequests).to.eql(null);\r",
+									"    pm.expect(firstEventDetails.confirmedRequests).to.eql(2);\r",
 									"    pm.expect(firstEventDetails.description).to.eql(\"Сплав на саппах похож на полет. На спокойной воде — это парение. На бурной, порожистой — выполнение фигур высшего пилотажа. И то, и другое дарят чувство обновления, феерические эмоции, яркие впечатления.\");\r",
 									"    pm.expect(firstEventDetails.lat).to.eql(55.754166);\r",
 									"    pm.expect(firstEventDetails.lon).to.eql(37.62);\r",
@@ -2965,6 +2881,658 @@
 									"key": "unique",
 									"value": "true"
 								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "comments",
+			"item": [
+				{
+					"name": "Create comment 1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Проверка статуса ответа\r",
+									"pm.test(\"Status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"// Check if the response has an id field\r",
+									"pm.test(\"Response has an id field\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property(\"id\");\r",
+									"});\r",
+									"\r",
+									"// Check if the response has an author field\r",
+									"pm.test(\"Response has an author field\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property(\"author\");\r",
+									"});\r",
+									"\r",
+									"// Check if the author field has an id field\r",
+									"pm.test(\"Author field has an id field\", function () {\r",
+									"    pm.expect(pm.response.json().author).to.have.property(\"id\");\r",
+									"});\r",
+									"\r",
+									"// Check if the author field has a name field\r",
+									"pm.test(\"Author field has a name field\", function () {\r",
+									"    pm.expect(pm.response.json().author).to.have.property(\"name\");\r",
+									"});\r",
+									"\r",
+									"// Check if the author field has an email field\r",
+									"pm.test(\"Author field has an email field\", function () {\r",
+									"    pm.expect(pm.response.json().author).to.have.property(\"email\");\r",
+									"});\r",
+									"\r",
+									"// Check if the response has a title field\r",
+									"pm.test(\"Response has a title field\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property(\"title\");\r",
+									"});\r",
+									"\r",
+									"// Check if the response has a text field\r",
+									"pm.test(\"Response has a text field\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property(\"text\");\r",
+									"});\r",
+									"\r",
+									"// Check if the response has a created field\r",
+									"pm.test(\"Response has a created field\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property(\"created\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"Замечательное мероприятие\",\r\n    \"text\": \"Ищу компанию, желательно девчонки))) 20-27 лет\"\r\n}"
+						},
+						"url": {
+							"raw": "{{localhost}}/users/3/events/1/comments",
+							"host": [
+								"{{localhost}}"
+							],
+							"path": [
+								"users",
+								"3",
+								"events",
+								"1",
+								"comments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create fail comment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Проверка статуса ответа\r",
+									"pm.test(\"Status code is 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"Замечательное мероприятие\",\r\n    \"text\": \"Ищу компанию, желательно девчонки))) 20-27 лет\"\r\n}"
+						},
+						"url": {
+							"raw": "{{localhost}}/users/3/events/1/comments",
+							"host": [
+								"{{localhost}}"
+							],
+							"path": [
+								"users",
+								"3",
+								"events",
+								"1",
+								"comments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get 1 event",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Проверка статуса ответа\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// Проверка структуры ответа\r",
+									"let jsonResponse = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has all required fields\", function () {\r",
+									"    pm.expect(jsonResponse).to.have.property(\"id\");\r",
+									"    pm.expect(jsonResponse).to.have.property(\"annotation\");\r",
+									"    pm.expect(jsonResponse).to.have.property(\"category\");\r",
+									"    pm.expect(jsonResponse).to.have.property(\"confirmedRequests\");\r",
+									"    pm.expect(jsonResponse).to.have.property(\"createdOn\");\r",
+									"    pm.expect(jsonResponse).to.have.property(\"description\");\r",
+									"    pm.expect(jsonResponse).to.have.property(\"eventDate\");\r",
+									"    pm.expect(jsonResponse).to.have.property(\"initiator\");\r",
+									"    pm.expect(jsonResponse).to.have.property(\"location\");\r",
+									"    pm.expect(jsonResponse).to.have.property(\"paid\");\r",
+									"    pm.expect(jsonResponse).to.have.property(\"participantLimit\");\r",
+									"    pm.expect(jsonResponse).to.have.property(\"publishedOn\");\r",
+									"    pm.expect(jsonResponse).to.have.property(\"requestModeration\");\r",
+									"    pm.expect(jsonResponse).to.have.property(\"state\");\r",
+									"    pm.expect(jsonResponse).to.have.property(\"title\");\r",
+									"    pm.expect(jsonResponse).to.have.property(\"views\");\r",
+									"});\r",
+									"\r",
+									"// Проверка значений некоторых полей\r",
+									"pm.test(\"Check specific field values\", function () {\r",
+									"    pm.expect(jsonResponse.id).to.eql(1);\r",
+									"    pm.expect(jsonResponse.annotation).to.eql(\"Сплав на саппах похож на полет.\");\r",
+									"    pm.expect(jsonResponse.category.id).to.eql(1);\r",
+									"    pm.expect(jsonResponse.category.name).to.eql(\"Активный отдых\");\r",
+									"    pm.expect(jsonResponse.initiator.id).to.eql(1);\r",
+									"    pm.expect(jsonResponse.initiator.name).to.eql(\"User #1\");\r",
+									"    pm.expect(jsonResponse.initiator.email).to.eql(\"user@user.com\");\r",
+									"    pm.expect(jsonResponse.location.lat).to.eql(55.754166);\r",
+									"    pm.expect(jsonResponse.location.lon).to.eql(37.62);\r",
+									"    pm.expect(jsonResponse.paid).to.eql(true);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check comments array content\", function () {\r",
+									"    pm.expect(jsonResponse.comments).to.be.an(\"array\").that.is.not.empty;\r",
+									"    \r",
+									"    // Проверка первого комментария\r",
+									"    let firstComment = jsonResponse.comments[0];\r",
+									"    pm.expect(firstComment).to.have.property(\"id\");\r",
+									"    pm.expect(firstComment).to.have.property(\"author\");\r",
+									"    pm.expect(firstComment).to.have.property(\"title\");\r",
+									"    pm.expect(firstComment).to.have.property(\"text\");\r",
+									"    pm.expect(firstComment).to.have.property(\"created\");\r",
+									"    \r",
+									"    // Проверка значений полей первого комментария\r",
+									"    pm.expect(firstComment.id).to.eql(1);\r",
+									"    pm.expect(firstComment.author.id).to.eql(3);\r",
+									"    pm.expect(firstComment.author.name).to.eql(\"User #2\");\r",
+									"    pm.expect(firstComment.author.email).to.eql(\"user2@user.com\");\r",
+									"    pm.expect(firstComment.title).to.eql(\"Замечательное мероприятие\");\r",
+									"    pm.expect(firstComment.text).to.eql(\"Ищу компанию, желательно девчонки))) 20-27 лет\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{localhost}}/events/1",
+							"host": [
+								"{{localhost}}"
+							],
+							"path": [
+								"events",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create comment 2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Проверка статуса ответа\r",
+									"pm.test(\"Status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"// Check if the response has an id field\r",
+									"pm.test(\"Response has an id field\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property(\"id\");\r",
+									"});\r",
+									"\r",
+									"// Check if the response has an author field\r",
+									"pm.test(\"Response has an author field\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property(\"author\");\r",
+									"});\r",
+									"\r",
+									"// Check if the author field has an id field\r",
+									"pm.test(\"Author field has an id field\", function () {\r",
+									"    pm.expect(pm.response.json().author).to.have.property(\"id\");\r",
+									"});\r",
+									"\r",
+									"// Check if the author field has a name field\r",
+									"pm.test(\"Author field has a name field\", function () {\r",
+									"    pm.expect(pm.response.json().author).to.have.property(\"name\");\r",
+									"});\r",
+									"\r",
+									"// Check if the author field has an email field\r",
+									"pm.test(\"Author field has an email field\", function () {\r",
+									"    pm.expect(pm.response.json().author).to.have.property(\"email\");\r",
+									"});\r",
+									"\r",
+									"// Check if the response has a title field\r",
+									"pm.test(\"Response has a title field\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property(\"title\");\r",
+									"});\r",
+									"\r",
+									"// Check if the response has a text field\r",
+									"pm.test(\"Response has a text field\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property(\"text\");\r",
+									"});\r",
+									"\r",
+									"// Check if the response has a created field\r",
+									"pm.test(\"Response has a created field\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property(\"created\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"Отлично! Люблю саппы!!!!\",\r\n    \"text\": \"Погнали все, новичкам не трудно научиться будет, а профессионалам показать свои умения\"\r\n}"
+						},
+						"url": {
+							"raw": "{{localhost}}/users/5/events/1/comments",
+							"host": [
+								"{{localhost}}"
+							],
+							"path": [
+								"users",
+								"5",
+								"events",
+								"1",
+								"comments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Patch comment 1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Проверка статуса ответа\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// Check if the response has an id field\r",
+									"pm.test(\"Response has an id field\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property(\"id\");\r",
+									"});\r",
+									"\r",
+									"// Check if the response has an author field\r",
+									"pm.test(\"Response has an author field\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property(\"author\");\r",
+									"});\r",
+									"\r",
+									"// Check if the author field has an id field\r",
+									"pm.test(\"Author field has an id field\", function () {\r",
+									"    pm.expect(pm.response.json().author).to.have.property(\"id\");\r",
+									"});\r",
+									"\r",
+									"// Check if the author field has a name field\r",
+									"pm.test(\"Author field has a name field\", function () {\r",
+									"    pm.expect(pm.response.json().author).to.have.property(\"name\");\r",
+									"});\r",
+									"\r",
+									"// Check if the author field has an email field\r",
+									"pm.test(\"Author field has an email field\", function () {\r",
+									"    pm.expect(pm.response.json().author).to.have.property(\"email\");\r",
+									"});\r",
+									"\r",
+									"// Check if the response has a title field\r",
+									"pm.test(\"Response has a title field\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property(\"title\");\r",
+									"});\r",
+									"\r",
+									"// Check if the response has a text field\r",
+									"pm.test(\"Response has a text field\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property(\"text\");\r",
+									"});\r",
+									"\r",
+									"// Check if the response has a created field\r",
+									"pm.test(\"Response has a created field\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property(\"created\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"Замечательное мероприятие!!\",\r\n    \"text\": \"Всем спорт, мир, труд, май, дружба, жвачка!\"\r\n}"
+						},
+						"url": {
+							"raw": "{{localhost}}/users/3/comments/1",
+							"host": [
+								"{{localhost}}"
+							],
+							"path": [
+								"users",
+								"3",
+								"comments",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create comment 3",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Проверка статуса ответа\r",
+									"pm.test(\"Status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"// Check if the response has an id field\r",
+									"pm.test(\"Response has an id field\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property(\"id\");\r",
+									"});\r",
+									"\r",
+									"// Check if the response has an author field\r",
+									"pm.test(\"Response has an author field\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property(\"author\");\r",
+									"});\r",
+									"\r",
+									"// Check if the author field has an id field\r",
+									"pm.test(\"Author field has an id field\", function () {\r",
+									"    pm.expect(pm.response.json().author).to.have.property(\"id\");\r",
+									"});\r",
+									"\r",
+									"// Check if the author field has a name field\r",
+									"pm.test(\"Author field has a name field\", function () {\r",
+									"    pm.expect(pm.response.json().author).to.have.property(\"name\");\r",
+									"});\r",
+									"\r",
+									"// Check if the author field has an email field\r",
+									"pm.test(\"Author field has an email field\", function () {\r",
+									"    pm.expect(pm.response.json().author).to.have.property(\"email\");\r",
+									"});\r",
+									"\r",
+									"// Check if the response has a title field\r",
+									"pm.test(\"Response has a title field\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property(\"title\");\r",
+									"});\r",
+									"\r",
+									"// Check if the response has a text field\r",
+									"pm.test(\"Response has a text field\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property(\"text\");\r",
+									"});\r",
+									"\r",
+									"// Check if the response has a created field\r",
+									"pm.test(\"Response has a created field\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property(\"created\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"Мероприятие лучшее!\",\r\n    \"text\": \"Мероприятие доставит много положительных эмоций, его инициатор, очень крутой!!!\"\r\n}"
+						},
+						"url": {
+							"raw": "{{localhost}}/users/1/events/1/comments",
+							"host": [
+								"{{localhost}}"
+							],
+							"path": [
+								"users",
+								"1",
+								"events",
+								"1",
+								"comments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create comment 3 Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Проверка статуса ответа\r",
+									"pm.test(\"Status code is 204\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{localhost}}/users/1/comments/3",
+							"host": [
+								"{{localhost}}"
+							],
+							"path": [
+								"users",
+								"1",
+								"comments",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get 1 event on 2 comments",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Проверка статуса ответа\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// Проверка структуры ответа\r",
+									"let jsonResponse = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has all required fields\", function () {\r",
+									"    pm.expect(jsonResponse).to.have.property(\"id\");\r",
+									"    pm.expect(jsonResponse).to.have.property(\"annotation\");\r",
+									"    pm.expect(jsonResponse).to.have.property(\"category\");\r",
+									"    pm.expect(jsonResponse).to.have.property(\"confirmedRequests\");\r",
+									"    pm.expect(jsonResponse).to.have.property(\"createdOn\");\r",
+									"    pm.expect(jsonResponse).to.have.property(\"description\");\r",
+									"    pm.expect(jsonResponse).to.have.property(\"eventDate\");\r",
+									"    pm.expect(jsonResponse).to.have.property(\"initiator\");\r",
+									"    pm.expect(jsonResponse).to.have.property(\"location\");\r",
+									"    pm.expect(jsonResponse).to.have.property(\"paid\");\r",
+									"    pm.expect(jsonResponse).to.have.property(\"participantLimit\");\r",
+									"    pm.expect(jsonResponse).to.have.property(\"publishedOn\");\r",
+									"    pm.expect(jsonResponse).to.have.property(\"requestModeration\");\r",
+									"    pm.expect(jsonResponse).to.have.property(\"state\");\r",
+									"    pm.expect(jsonResponse).to.have.property(\"title\");\r",
+									"    pm.expect(jsonResponse).to.have.property(\"views\");\r",
+									"});\r",
+									"\r",
+									"// Проверка значений некоторых полей\r",
+									"pm.test(\"Check specific field values\", function () {\r",
+									"    pm.expect(jsonResponse.id).to.eql(1);\r",
+									"    pm.expect(jsonResponse.annotation).to.eql(\"Сплав на саппах похож на полет.\");\r",
+									"    pm.expect(jsonResponse.category.id).to.eql(1);\r",
+									"    pm.expect(jsonResponse.category.name).to.eql(\"Активный отдых\");\r",
+									"    pm.expect(jsonResponse.initiator.id).to.eql(1);\r",
+									"    pm.expect(jsonResponse.initiator.name).to.eql(\"User #1\");\r",
+									"    pm.expect(jsonResponse.initiator.email).to.eql(\"user@user.com\");\r",
+									"    pm.expect(jsonResponse.location.lat).to.eql(55.754166);\r",
+									"    pm.expect(jsonResponse.location.lon).to.eql(37.62);\r",
+									"    pm.expect(jsonResponse.paid).to.eql(true);\r",
+									"    pm.expect(jsonResponse.comments.length).to.eql(2);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{localhost}}/events/1",
+							"host": [
+								"{{localhost}}"
+							],
+							"path": [
+								"events",
+								"1"
 							]
 						}
 					},
