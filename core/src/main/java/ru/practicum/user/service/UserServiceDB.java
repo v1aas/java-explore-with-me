@@ -354,10 +354,10 @@ public class UserServiceDB implements UserService {
 
     @Override
     public CommentaryDto createComment(Integer userId, Integer eventId, CommentaryDto commentaryDto) {
-        Event event = eventRepository.findById(eventId).
-                orElseThrow(() -> new ResourceNotFoundException("Такого события нет!"));
-        User user = repository.findById(userId).
-                orElseThrow(() -> new ResourceNotFoundException("Такого пользователя нет!"));
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new ResourceNotFoundException("Такого события нет!"));
+        User user = repository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Такого пользователя нет!"));
         if (commentaryDto.getText() == null || commentaryDto.getText().trim().isEmpty()
                 || commentaryDto.getTitle() == null || commentaryDto.getTitle().trim().isEmpty()) {
             throw new ValidationException("Заголовок, текст не могут быть пустыми!");
