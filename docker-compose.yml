@@ -1,5 +1,24 @@
 version: '3.1'
 services:
+  stats:
+    build: stats/server
+    image: explore-with-me-server
+    container_name: explore-with-me-server
+    ports:
+      - "9090:9090"
+    depends_on:
+      - stats-db
+
+  stats-db:
+    image: postgres:14-alpine
+    container_name: stats-db
+    ports:
+      - "6540:5431"
+    environment:
+      - POSTGRES_DB=jdbc:h2:mem:explore-with-me-stats
+      - POSTGRES_USER=stats
+      - POSTGRES_PASSWORD=stats
+
   core:
     build: core
     image: explore-with-me-core
@@ -18,22 +37,3 @@ services:
       - POSTGRES_DB=jdbc:h2:mem:explore-with-me-core
       - POSTGRES_USER=core
       - POSTGRES_PASSWORD=core
-
-  stats-server:
-    build: server_stats
-    image: explore-with-me-server
-    container_name: explore-with-me-server
-    ports:
-      - "9090:9090"
-    depends_on:
-      - stats-db
-
-  stats-db:
-    image: postgres:14-alpine
-    container_name: stats-db
-    ports:
-      - "6540:5431"
-    environment:
-      - POSTGRES_DB=jdbc:h2:mem:explore-with-me-stats
-      - POSTGRES_USER=stats
-      - POSTGRES_PASSWORD=stats

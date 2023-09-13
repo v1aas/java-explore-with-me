@@ -23,8 +23,8 @@
 	</properties>
 
 	<modules>
+		<module>stats</module>
 		<module>core</module>
-		<module>server_stats</module>
 	</modules>
 
 	<build>
