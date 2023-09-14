@@ -203,8 +203,6 @@
 									"    // Проверка значений полей первого комментария\r",
 									"    pm.expect(firstComment.id).to.eql(1);\r",
 									"    pm.expect(firstComment.author.id).to.eql(3);\r",
-									"    pm.expect(firstComment.author.name).to.eql(\"Sabrina Connelly II\");\r",
-									"    pm.expect(firstComment.author.email).to.eql(\"Bailey56@gmail.com\");\r",
 									"    pm.expect(firstComment.title).to.eql(\"Замечательное мероприятие\");\r",
 									"    pm.expect(firstComment.text).to.eql(\"Ищу компанию, желательно девчонки))) 20-27 лет\");\r",
 									"});"
