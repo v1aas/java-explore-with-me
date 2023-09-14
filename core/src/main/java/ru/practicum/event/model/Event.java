@@ -5,10 +5,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.practicum.category.model.Category;
+import ru.practicum.comment.model.Commentary;
 import ru.practicum.user.model.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -71,4 +73,12 @@ public class Event {
     @OneToOne
     @JoinColumn(name = "initiator", nullable = false)
     private User initiator;
+
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "event_comments",
+            joinColumns = @JoinColumn(name = "event_id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "comment_id", nullable = false)
+    )
+    private List<Commentary> comments;
 }

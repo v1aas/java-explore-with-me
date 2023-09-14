@@ -1,5 +1,6 @@
 package ru.practicum.user.service;
 
+import ru.practicum.comment.model.CommentaryDto;
 import ru.practicum.event.model.EventDto;
 import ru.practicum.event.model.EventDtoRequest;
 import ru.practicum.request.model.AllUserRequestFormat;
@@ -35,4 +36,10 @@ public interface UserService {
     List<UserRequestDto> getAllRequestsForOwnerEvent(Integer userId, Integer eventId);
 
     AllUserRequestResponse changeStatusRequestForEvent(Integer userId, Integer eventId, AllUserRequestFormat request);
+
+    CommentaryDto createComment(Integer userId, Integer eventId, CommentaryDto commentaryDto);
+
+    CommentaryDto updateComment(Integer userId, Integer commentId, CommentaryDto commentaryDto);
+
+    void deleteComment(Integer userId, Integer commentId);
 }

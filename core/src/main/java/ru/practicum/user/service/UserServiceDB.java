@@ -4,6 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.category.repository.CategoryRepository;
+import ru.practicum.comment.mapper.CommentaryMapper;
+import ru.practicum.comment.model.Commentary;
+import ru.practicum.comment.model.CommentaryDto;
+import ru.practicum.comment.repository.CommentaryRepository;
 import ru.practicum.event.mapper.EventMapper;
 import ru.practicum.event.model.Event;
 import ru.practicum.event.model.EventDto;
@@ -40,6 +44,8 @@ public class UserServiceDB implements UserService {
     private final CategoryRepository categoryRepository;
 
     private final UserRequestRepository requestRepository;
+
+    private final CommentaryRepository commentaryRepository;
 
     @Override
     public List<UserDto> getUsers(List<Integer> ids, Integer from, Integer size) {
@@ -346,6 +352,60 @@ public class UserServiceDB implements UserService {
         return UserRequestMapper.toRequestDto(userRequest);
     }
 
+    @Override
+    public CommentaryDto createComment(Integer userId, Integer eventId, CommentaryDto commentaryDto) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new ResourceNotFoundException("Такого события нет!"));
+        User user = repository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Такого пользователя нет!"));
+        if (commentaryDto.getText() == null || commentaryDto.getText().trim().isEmpty()
+                || commentaryDto.getTitle() == null || commentaryDto.getTitle().trim().isEmpty()) {
+            throw new ValidationException("Заголовок, текст не могут быть пустыми!");
+        }
+        if (!isValidCommentary(event.getComments(), userId)) {
+            throw new ValidationException("Пользователь с опубликованным комментарием может " +
+                    "только его изменить");
+        }
+        commentaryDto.setCreated(LocalDateTime.now());
+        commentaryDto.setAuthor(user);
+        Commentary commentary = commentaryRepository.save(CommentaryMapper.toCommentary(commentaryDto));
+        event.getComments().add(commentary);
+        eventRepository.save(event);
+        return CommentaryMapper.toCommentaryDto(commentary);
+    }
+
+    @Override
+    public CommentaryDto updateComment(Integer userId, Integer commentId, CommentaryDto commentaryDto) {
+        Commentary commentary = commentaryRepository.findById(commentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Такого комментария нет!"));
+        if (!commentary.getAuthor().getId().equals(userId)) {
+            throw new ValidationException("Только создатель комментария может его изменять!");
+        }
+        if (commentaryDto.getText() != null) {
+            if (commentaryDto.getText().trim().isEmpty()) {
+                throw new ValidationException("Текст не может быть пустыми!");
+            }
+            commentary.setText(commentaryDto.getText());
+        }
+        if (commentaryDto.getTitle() != null) {
+            if (commentaryDto.getTitle().trim().isEmpty()) {
+                throw new ValidationException("Заголовок не может быть пустыми!");
+            }
+            commentary.setTitle(commentary.getText());
+        }
+        return CommentaryMapper.toCommentaryDto(commentaryRepository.save(commentary));
+    }
+
+    @Override
+    public void deleteComment(Integer userId, Integer commentId) {
+        Commentary commentary = commentaryRepository.findById(commentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Такого комментария нет!"));
+        if (!commentary.getAuthor().getId().equals(userId)) {
+            throw new ValidationException("Только создатель комментария может его удалить!");
+        }
+        commentaryRepository.deleteById(commentId);
+    }
+
     private boolean isValidEmail(String email) {
         String[] parts = email.split("@");
 
@@ -359,6 +419,15 @@ public class UserServiceDB implements UserService {
         String[] domainParts = domainPart.split("\\.");
         for (String domain : domainParts) {
             if (domain.length() > 63) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isValidCommentary(List<Commentary> commentaries, int userId) {
+        for (Commentary comment : commentaries) {
+            if (comment.getAuthor().getId().equals(userId)) {
                 return false;
             }
         }

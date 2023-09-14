@@ -1,2 +1,4 @@
 # java-explore-with-me
-Template repository for ExploreWithMe project.
+## Дипломная работа
+https://github.com/v1aas/java-explore-with-me/pull/5
+

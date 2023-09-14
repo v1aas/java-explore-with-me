@@ -47,7 +47,8 @@ public class EventMapper {
                 event.isRequestModeration(),
                 event.getState(),
                 event.getTitle(),
-                event.getViews());
+                event.getViews(),
+                event.getComments());
     }
 
     public static List<EventDto> toEventDtoList(List<Event> events) {
